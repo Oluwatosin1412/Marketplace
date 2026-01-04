@@ -30,3 +30,9 @@ POST http://localhost:5000/api/auth/forgot-password
 
 //Reset password
 POST http://localhost:5000/api/auth/reset-password/<token>
+
+//Create new product
+http://localhost:5000/api/products
+
+//Create new service
+http://localhost:5000/services

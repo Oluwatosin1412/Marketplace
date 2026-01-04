@@ -32,7 +32,8 @@ const CreateService = () => {
     "Repairs",
     "Room or Hostel Rentals",
     "Printing / Typing / Photocopy",
-    "Freelancing"
+    "Freelancing",
+    "Others"
   ];
 
   const locations = [
