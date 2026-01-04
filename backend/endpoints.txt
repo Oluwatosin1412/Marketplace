@@ -23,3 +23,10 @@ http://localhost:5000/api/auth/login
 
 //Get User Profile
 http://localhost:5000/api/users/profile
+
+
+//Forgot password
+POST http://localhost:5000/api/auth/forgot-password
+
+//Reset password
+POST http://localhost:5000/api/auth/reset-password/<token>
