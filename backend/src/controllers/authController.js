@@ -132,7 +132,6 @@ export const loginUser = async (req, res) => {
 };
 
 
-// Forgot password
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
@@ -144,7 +143,6 @@ export const forgotPassword = async (req, res) => {
       });
     }
 
-    // Use method from User.js to generate token
     const resetToken = user.createPasswordResetToken();
     await user.save();
 
@@ -161,11 +159,16 @@ export const forgotPassword = async (req, res) => {
     });
 
     const message = {
-      from: process.env.SMTP_FROM,
-      to: user.email,
-      subject: "Password Reset Request",
-      text: `You requested a password reset. Click the link to reset your password: ${resetUrl}`,
-    };
+  from: process.env.SMTP_FROM,
+  to: user.email,
+  subject: "Password Reset Request",
+  text: `You requested a password reset. Visit the following link to reset your password: ${resetUrl}`,
+  html: `
+    <p>You requested a password reset.</p>
+    <p>Click <a href="${resetUrl}" target="_blank">here</a> to reset your password.</p>
+    <p>If you did not request this, please ignore this email.</p>
+  `,
+};
 
     await transporter.sendMail(message);
 
