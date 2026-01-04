@@ -15,7 +15,7 @@ const AuthRegister = () => {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    studentId: '',
+    matricNumber: '',
     password: '',
     confirmPassword: '',
     phoneNumber: '',
@@ -26,12 +26,13 @@ const AuthRegister = () => {
   const { toast } = useToast();
 
   const faculties = [
-    "Engineering",
-    "Science",
-    "Agriculture and Agricultural Technology",
-    "Environmental Sciences",
-    "Information and Communication Technology",
-    "Management Technology"
+    "SEET",
+    "SOPS",
+    "SAAT",
+    "SOES",
+    "SICT",
+    "SLIT",
+    "SOHT"
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -80,9 +81,9 @@ const AuthRegister = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
       {/* Modern Header */}
-      <header className="backdrop-blur-md bg-white/90 shadow-sm border-b border-gray-200/50">
+      <header className="backdrop-blur-md bg-white/90 dark:bg-slate-900/90 shadow-sm border-b border-gray-200/50 dark:border-slate-700/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <Link to="/" className="flex items-center space-x-3">
@@ -94,12 +95,12 @@ const AuthRegister = () => {
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   FUTO Marketplace
                 </h1>
-                <p className="text-xs text-gray-500">Campus Commerce Hub</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Campus Commerce Hub</p>
               </div>
             </Link>
             
             <Link to="/auth/login">
-              <Button variant="ghost" className="hover:bg-blue-50 transition-all duration-300">
+              <Button variant="ghost" className="hover:bg-blue-50 dark:hover:bg-slate-800 transition-all duration-300">
                 Sign In
               </Button>
             </Link>
@@ -111,18 +112,18 @@ const AuthRegister = () => {
       <div className="flex items-center justify-center py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8 animate-fade-in">
           <div className="text-center space-y-4">
-            <h2 className="text-4xl font-bold text-gray-900">Join the community</h2>
-            <p className="text-lg text-gray-600">Create your account and start your campus commerce journey</p>
+            <h2 className="text-4xl font-bold text-foreground">Join the community</h2>
+            <p className="text-lg text-muted-foreground">Create your account and start your campus commerce journey</p>
           </div>
 
           <div className="relative group">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity"></div>
-            <Card className="relative bg-white/95 backdrop-blur-md shadow-2xl border-0 rounded-2xl">
+            <Card className="relative bg-white/95 dark:bg-slate-800/95 backdrop-blur-md shadow-2xl border-0 rounded-2xl">
               <CardContent className="p-8">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="fullName" className="text-gray-700 font-medium">Full Name *</Label>
+                      <Label htmlFor="fullName" className="text-foreground font-medium">Full Name *</Label>
                       <Input
                         id="fullName"
                         type="text"
@@ -130,13 +131,13 @@ const AuthRegister = () => {
                         value={formData.fullName}
                         onChange={(e) => setFormData({...formData, fullName: e.target.value})}
                         placeholder="Enter your full name"
-                        className="h-11 bg-white/80 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+                        className="h-11 bg-muted border-border focus:border-blue-500 focus:ring-blue-500 rounded-xl text-foreground placeholder:text-muted-foreground"
                         disabled={isLoading}
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="email" className="text-gray-700 font-medium">Email Address *</Label>
+                      <Label htmlFor="email" className="text-foreground font-medium">Email Address *</Label>
                       <Input
                         id="email"
                         type="email"
@@ -144,26 +145,26 @@ const AuthRegister = () => {
                         value={formData.email}
                         onChange={(e) => setFormData({...formData, email: e.target.value})}
                         placeholder="Enter your email"
-                        className="h-11 bg-white/80 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+                        className="h-11 bg-muted border-border focus:border-blue-500 focus:ring-blue-500 rounded-xl text-foreground placeholder:text-muted-foreground"
                         disabled={isLoading}
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="studentId" className="text-gray-700 font-medium">Student ID (Optional)</Label>
+                      <Label htmlFor="matricNumber" className="text-foreground font-medium">Matriculation Number (Optional)</Label>
                       <Input
-                        id="studentId"
+                        id="matricNumber"
                         type="text"
-                        value={formData.studentId}
-                        onChange={(e) => setFormData({...formData, studentId: e.target.value})}
-                        placeholder="Enter your student ID"
-                        className="h-11 bg-white/80 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+                        value={formData.matricNumber}
+                        onChange={(e) => setFormData({...formData, matricNumber: e.target.value})}
+                        placeholder="Enter your matriculation number"
+                        className="h-11 bg-muted border-border focus:border-blue-500 focus:ring-blue-500 rounded-xl text-foreground placeholder:text-muted-foreground"
                         disabled={isLoading}
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="phoneNumber" className="text-gray-700 font-medium">Phone Number *</Label>
+                      <Label htmlFor="phoneNumber" className="text-foreground font-medium">Phone Number *</Label>
                       <Input
                         id="phoneNumber"
                         type="tel"
@@ -171,15 +172,15 @@ const AuthRegister = () => {
                         value={formData.phoneNumber}
                         onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})}
                         placeholder="Enter your phone number"
-                        className="h-11 bg-white/80 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+                        className="h-11 bg-muted border-border focus:border-blue-500 focus:ring-blue-500 rounded-xl text-foreground placeholder:text-muted-foreground"
                         disabled={isLoading}
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="faculty" className="text-gray-700 font-medium">Faculty (Optional)</Label>
+                      <Label htmlFor="faculty" className="text-foreground font-medium">Faculty (Optional)</Label>
                       <Select onValueChange={(value) => setFormData({...formData, faculty: value})} disabled={isLoading}>
-                        <SelectTrigger className="h-11 bg-white/80 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl">
+                        <SelectTrigger className="h-11 bg-muted border-border focus:border-blue-500 focus:ring-blue-500 rounded-xl text-foreground">
                           <SelectValue placeholder="Select your faculty" />
                         </SelectTrigger>
                         <SelectContent>
@@ -193,20 +194,20 @@ const AuthRegister = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="department" className="text-gray-700 font-medium">Department (Optional)</Label>
+                      <Label htmlFor="department" className="text-foreground font-medium">Department (Optional)</Label>
                       <Input
                         id="department"
                         type="text"
                         value={formData.department}
                         onChange={(e) => setFormData({...formData, department: e.target.value})}
                         placeholder="Enter your department"
-                        className="h-11 bg-white/80 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+                        className="h-11 bg-muted border-border focus:border-blue-500 focus:ring-blue-500 rounded-xl text-foreground placeholder:text-muted-foreground"
                         disabled={isLoading}
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="password" className="text-gray-700 font-medium">Password *</Label>
+                      <Label htmlFor="password" className="text-foreground font-medium">Password *</Label>
                       <div className="relative">
                         <Input
                           id="password"
@@ -215,26 +216,26 @@ const AuthRegister = () => {
                           value={formData.password}
                           onChange={(e) => setFormData({...formData, password: e.target.value})}
                           placeholder="Create a password (min. 6 characters)"
-                          className="h-11 bg-white/80 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl pr-12"
+                          className="h-11 bg-muted border-border focus:border-blue-500 focus:ring-blue-500 rounded-xl pr-12 text-foreground placeholder:text-muted-foreground"
                           disabled={isLoading}
                         />
                         <button
                           type="button"
-                          className="absolute inset-y-0 right-0 pr-4 flex items-center hover:bg-gray-50 rounded-r-xl transition-colors"
+                          className="absolute inset-y-0 right-0 pr-4 flex items-center hover:bg-muted rounded-r-xl transition-colors"
                           onClick={() => setShowPassword(!showPassword)}
                           disabled={isLoading}
                         >
                           {showPassword ? (
-                            <EyeOff className="h-5 w-5 text-gray-400" />
+                            <EyeOff className="h-5 w-5 text-muted-foreground" />
                           ) : (
-                            <Eye className="h-5 w-5 text-gray-400" />
+                            <Eye className="h-5 w-5 text-muted-foreground" />
                           )}
                         </button>
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="confirmPassword" className="text-gray-700 font-medium">Confirm Password *</Label>
+                      <Label htmlFor="confirmPassword" className="text-foreground font-medium">Confirm Password *</Label>
                       <Input
                         id="confirmPassword"
                         type="password"
@@ -242,7 +243,7 @@ const AuthRegister = () => {
                         value={formData.confirmPassword}
                         onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
                         placeholder="Confirm your password"
-                        className="h-11 bg-white/80 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+                        className="h-11 bg-muted border-border focus:border-blue-500 focus:ring-blue-500 rounded-xl text-foreground placeholder:text-muted-foreground"
                         disabled={isLoading}
                       />
                     </div>
@@ -265,7 +266,7 @@ const AuthRegister = () => {
                 </form>
 
                 <div className="mt-6 text-center">
-                  <p className="text-gray-600">
+                  <p className="text-muted-foreground">
                     Already have an account?{' '}
                     <Link to="/auth/login" className="text-blue-600 hover:text-blue-700 font-semibold transition-colors">
                       Sign in here

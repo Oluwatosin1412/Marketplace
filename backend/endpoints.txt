@@ -1,0 +1,25 @@
+//User Registration
+http://localhost:5000/api/auth/register
+
+{
+  "fullName": "Victor D Tosin",
+  "email": "victor123@example.com",
+  "password": "Vick123.$",
+  "confirmPassword": "Vick123.$",
+  "phoneNumber": "08012345678",
+  "faculty": "Engineering",
+  "department": "Computer Science",
+  "studentId": "FUTO1234567"
+}
+
+
+//User login
+http://localhost:5000/api/auth/login
+
+{
+  "emailOrId": "victor123@example.com",
+  "password": "Vick123.$"
+}
+
+//Get User Profile
+http://localhost:5000/api/users/profile

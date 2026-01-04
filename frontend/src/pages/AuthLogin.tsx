@@ -46,9 +46,9 @@ const AuthLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
       {/* Modern Header */}
-      <header className="backdrop-blur-md bg-white/90 shadow-sm border-b border-gray-200/50">
+      <header className="backdrop-blur-md bg-white/90 dark:bg-slate-900/90 shadow-sm border-b border-gray-200/50 dark:border-slate-700/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <Link to="/" className="flex items-center space-x-3">
@@ -60,7 +60,7 @@ const AuthLogin = () => {
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   FUTO Marketplace
                 </h1>
-                <p className="text-xs text-gray-500">Campus Commerce Hub</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Campus Commerce Hub</p>
               </div>
             </Link>
             
@@ -77,31 +77,31 @@ const AuthLogin = () => {
       <div className="flex items-center justify-center py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8 animate-fade-in">
           <div className="text-center space-y-4">
-            <h2 className="text-4xl font-bold text-gray-900">Welcome back</h2>
-            <p className="text-lg text-gray-600">Sign in to your account and continue your journey</p>
+            <h2 className="text-4xl font-bold text-foreground">Welcome back</h2>
+            <p className="text-lg text-muted-foreground">Sign in to your account and continue your journey</p>
           </div>
 
           <div className="relative group">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity"></div>
-            <Card className="relative bg-white/95 backdrop-blur-md shadow-2xl border-0 rounded-2xl">
+            <Card className="relative bg-white/95 dark:bg-slate-800/95 backdrop-blur-md shadow-2xl border-0 rounded-2xl">
               <CardContent className="p-8">
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="emailOrId" className="text-gray-700 font-medium">Email or Student ID</Label>
+                    <Label htmlFor="emailOrId" className="text-foreground font-medium">Email or Student Matric Number</Label>
                     <Input
                       id="emailOrId"
                       type="text"
                       required
                       value={formData.emailOrId}
                       onChange={(e) => setFormData({...formData, emailOrId: e.target.value})}
-                      placeholder="Enter email or student ID"
-                      className="h-12 bg-white/80 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+                      placeholder="Enter email or student matric number"
+                      className="h-12 bg-muted border-border focus:border-blue-500 focus:ring-blue-500 rounded-xl text-foreground placeholder:text-muted-foreground"
                       disabled={isLoading}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="password" className="text-gray-700 font-medium">Password</Label>
+                    <Label htmlFor="password" className="text-foreground font-medium">Password</Label>
                     <div className="relative">
                       <Input
                         id="password"
@@ -110,19 +110,19 @@ const AuthLogin = () => {
                         value={formData.password}
                         onChange={(e) => setFormData({...formData, password: e.target.value})}
                         placeholder="Enter password"
-                        className="h-12 bg-white/80 border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl pr-12"
+                        className="h-12 bg-muted border-border focus:border-blue-500 focus:ring-blue-500 rounded-xl pr-12 text-foreground placeholder:text-muted-foreground"
                         disabled={isLoading}
                       />
                       <button
                         type="button"
-                        className="absolute inset-y-0 right-0 pr-4 flex items-center hover:bg-gray-50 rounded-r-xl transition-colors"
+                        className="absolute inset-y-0 right-0 pr-4 flex items-center hover:bg-muted rounded-r-xl transition-colors"
                         onClick={() => setShowPassword(!showPassword)}
                         disabled={isLoading}
                       >
                         {showPassword ? (
-                          <EyeOff className="h-5 w-5 text-gray-400" />
+                          <EyeOff className="h-5 w-5 text-muted-foreground" />
                         ) : (
-                          <Eye className="h-5 w-5 text-gray-400" />
+                          <Eye className="h-5 w-5 text-muted-foreground" />
                         )}
                       </button>
                     </div>
@@ -151,7 +151,7 @@ const AuthLogin = () => {
                 </form>
 
                 <div className="mt-8 text-center">
-                  <p className="text-gray-600">
+                  <p className="text-muted-foreground">
                     Don't have an account?{' '}
                     <Link to="/auth/register" className="text-blue-600 hover:text-blue-700 font-semibold transition-colors">
                       Sign up here

@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Search, ShoppingCart, Wrench, Heart, User, Plus, TrendingUp, Users, Star, ArrowRight, GraduationCap, ShoppingBag, Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -82,9 +83,9 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
       {/* Modern Header */}
-      <header className="backdrop-blur-md bg-white/90 shadow-sm border-b border-gray-200/50 sticky top-0 z-50">
+      <header className="backdrop-blur-md bg-white/90 dark:bg-slate-900/90 shadow-sm border-b border-gray-200/50 dark:border-slate-700/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 lg:h-20">
             <Link to="/" className="flex items-center space-x-2 lg:space-x-3">
@@ -104,7 +105,8 @@ const Index = () => {
             </Link>
             
             {/* Mobile Menu Button */}
-            <div className="lg:hidden">
+            <div className="lg:hidden flex items-center space-x-2">
+              <ThemeToggle />
               <Button
                 variant="ghost"
                 size="sm"
@@ -117,8 +119,9 @@ const Index = () => {
 
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-4">
+              <ThemeToggle />
               <Link to="/auth/login">
-                <Button variant="ghost" size="sm" className="hover:bg-blue-50">
+                <Button variant="ghost" size="sm" className="hover:bg-blue-50 dark:hover:bg-slate-800">
                   <User className="h-4 w-4 mr-2" />
                   Login
                 </Button>
@@ -168,15 +171,15 @@ const Index = () => {
             <div className="max-w-2xl mx-auto mb-6 lg:mb-8 px-4">
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity"></div>
-                <div className="relative bg-white rounded-2xl shadow-xl border-0 p-2">
+                <div className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-xl border-0 p-2">
                   <div className="flex items-center space-x-2">
-                    <Search className="h-5 w-5 text-gray-400 ml-2" />
+                    <Search className="h-5 w-5 text-gray-400 dark:text-gray-500 ml-2" />
                     <Input
                       type="text"
                       placeholder="Search products, services, or students..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="flex-1 border-0 bg-transparent focus:ring-0 text-base lg:text-lg"
+                      className="flex-1 border-0 bg-transparent focus:ring-0 text-base lg:text-lg text-foreground placeholder:text-muted-foreground"
                     />
                     <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 lg:px-8 py-2 lg:py-3 text-sm lg:text-base">
                       Search
