@@ -111,9 +111,24 @@ export const loginUser = async (req, res) => {
       { expiresIn: '7d' }
     );
 
+    const accessToken = jwt.sign(
+      { id: user._id, email: user.email },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "15m" } // short-lived
+    );
+
+    const refreshToken = jwt.sign(
+      { id: user._id },
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: "7d" } // long-lived
+    );
+
+
     res.json({
       message: 'Login successful',
       token,
+      accessToken,
+      refreshToken,
       user: {
         id: user._id,
         fullName: user.fullName,
