@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { ShoppingBag, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import api from "../lib/axios";
 
 const AuthLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -21,23 +21,35 @@ const AuthLogin = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    console.log('Login attempt:', formData);
-    
-    // Simulate login process
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      // Call login API
+      const response = await api.post("/auth/login", formData);
+      const data = response.data;
+
+      console.log("Login Response:", data);
+
+      // Store tokens in localStorage
+      localStorage.setItem("accessToken", data.accessToken);
+      localStorage.setItem("refreshToken", data.refreshToken);
+
+      // Store user info
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // Success toast
       toast({
         title: "Welcome back!",
-        description: "You have been successfully logged in.",
+        description: `Hello, ${data.user.fullName}`,
       });
-      
-      navigate('/dashboard');
-    } catch (error) {
+
+      // Redirect to dashboard
+      navigate("/dashboard");
+
+    } catch (error: any) {
+      console.error(error);
       toast({
         title: "Login failed",
-        description: "Please check your credentials and try again.",
+        description: error.response?.data?.message || "Please check your credentials",
         variant: "destructive"
       });
     } finally {
@@ -47,7 +59,7 @@ const AuthLogin = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
-      {/* Modern Header */}
+      {/* Header */}
       <header className="backdrop-blur-md bg-white/90 dark:bg-slate-900/90 shadow-sm border-b border-gray-200/50 dark:border-slate-700/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">

@@ -4,57 +4,29 @@ import crypto from "crypto";
 
 const userSchema = new mongoose.Schema(
   {
-    fullName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+    fullName: { type: String, required: true, trim: true },
 
     email: {
       type: String,
       required: true,
       unique: true,
       lowercase: true,
+      trim: true,
     },
 
-    matricNumber: {
-      type: String,
-      unique: true,
-      sparse: true,
-    },
+    matricNumber: { type: String, unique: true, sparse: true },
 
-    phoneNumber: {
-      type: String,
-      required: true,
-    },
+    phoneNumber: { type: String, required: true },
 
-    faculty: {
-      type: String,
-      default: "",
-    },
+    faculty: { type: String, default: "" },
+    department: { type: String, default: "" },
 
-    department: {
-      type: String,
-      default: "",
-    },
+    password: { type: String, required: true },
 
-    password: {
-      type: String,
-      required: true,
-    },
+    role: { type: String, enum: ["user", "admin"], default: "user" },
 
-    role: {
-      type: String,
-      enum: ["user", "admin"],
-      default: "user",
-    },
-
-    resetPasswordToken: {
-      type: String,
-    },
-    resetPasswordExpires: {
-      type: Date,
-    },
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
   },
   { timestamps: true }
 );
@@ -65,12 +37,11 @@ userSchema.pre("save", async function () {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-userSchema.methods.comparePassword = async function (password) {
+userSchema.methods.comparePassword = function (password) {
   return bcrypt.compare(password, this.password);
 };
 
 userSchema.methods.createPasswordResetToken = function () {
-
   const resetToken = crypto.randomBytes(32).toString("hex");
 
   this.resetPasswordToken = crypto
@@ -78,9 +49,18 @@ userSchema.methods.createPasswordResetToken = function () {
     .update(resetToken)
     .digest("hex");
 
-  this.resetPasswordExpires = Date.now() + 60 * 60 * 1000;
+  this.resetPasswordExpires = Date.now() + 60 * 60 * 1000; // 1 hour
 
   return resetToken;
 };
+
+userSchema.set("toJSON", {
+  transform: function (doc, ret) {
+    delete ret.password;
+    delete ret.resetPasswordToken;
+    delete ret.resetPasswordExpires;
+    return ret;
+  },
+});
 
 export default mongoose.model("User", userSchema);

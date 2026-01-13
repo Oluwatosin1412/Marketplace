@@ -1,10 +1,9 @@
-
-import { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Bell, Menu, User, LogOut, ShoppingBag, Settings } from "lucide-react";
+import { Menu, User, ShoppingBag, Settings } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { NotificationsDropdown } from "@/components/NotificationsDropdown";
+import { LogoutConfirmDialog } from "@/components/LogoutConfirmDialog";
 
 interface DashboardHeaderProps {
   mobileMenuOpen: boolean;
@@ -54,10 +53,7 @@ const DashboardHeader = ({ mobileMenuOpen, setMobileMenuOpen }: DashboardHeaderP
               <User className="h-4 w-4 mr-2" />
               Profile
             </Button>
-            <Button variant="ghost" size="sm" className="hover:bg-destructive/10 text-destructive">
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
+            <LogoutConfirmDialog variant="desktop" />
           </div>
 
           {/* Mobile Hamburger Menu */}
@@ -88,10 +84,7 @@ const DashboardHeader = ({ mobileMenuOpen, setMobileMenuOpen }: DashboardHeaderP
                   <User className="h-4 w-4 mr-3" />
                   Profile
                 </Button>
-                <Button variant="ghost" size="sm" className="w-full justify-start px-4 py-2 hover:bg-destructive/10 text-destructive">
-                  <LogOut className="h-4 w-4 mr-3" />
-                  Logout
-                </Button>
+                <LogoutConfirmDialog variant="mobile" />
               </div>
             )}
           </div>

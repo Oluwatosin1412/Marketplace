@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, User, Bell, Shield, Key, Trash2, Mail, Phone, MapPin, ShoppingBag } from "lucide-react";
+import { ArrowLeft, User, Bell, Shield, Key, Mail, Phone, MapPin, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,8 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { DeleteAccountDialog } from "@/components/DeleteAccountDialog";
+import { ChangePasswordDialog } from "@/components/ChangePasswordDialog";
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -218,14 +220,8 @@ const Settings = () => {
             <CardDescription>Manage your account security</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Button variant="outline" className="w-full justify-start">
-              <Key className="h-4 w-4 mr-2" />
-              Change Password
-            </Button>
-            <Button variant="outline" className="w-full justify-start text-destructive hover:text-destructive">
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete Account
-            </Button>
+            <ChangePasswordDialog />
+            <DeleteAccountDialog />
           </CardContent>
         </Card>
 

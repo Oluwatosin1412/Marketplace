@@ -5,10 +5,7 @@ import nodemailer from "nodemailer";
 import User from "../models/User.js";
 
 
-const passwordRequirements =
-  /^(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$/;
-
-
+const passwordRequirements = /^(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$/;
 
 export const registerUser = async (req, res) => {
   try {
@@ -31,12 +28,9 @@ export const registerUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid email address" });
     }
 
-
     if (!passwordRequirements.test(password)) {
-      return res
-        .status(400)
-        .json({
-          message:
+      return res.status(400).json({
+        message:
           "Password must be at least 6 characters long and include at least one number and one special character",
       });
     }
@@ -60,75 +54,30 @@ export const registerUser = async (req, res) => {
       password,
     });
 
-    const token = jwt.sign(
-      { id: user._id, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
-
-    res.status(201).json({
-      message: "Account created successfully",
-      token,
-      user: {
-        id: user._id,
-        fullName: user.fullName,
-        email: user.email,
-        role: user.role,
-      },
-    });
-  } catch (error) {
-    console.error("Register error:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-
-
-export const loginUser = async (req, res) => {
-  try {
-    const { emailOrId, password } = req.body;
-
-    if (!emailOrId || !password) {
-      return res.status(400).json({ message: 'All fields are required' });
-    }
-
-    const user = await User.findOne({
-      $or: [{ email: emailOrId.toLowerCase() }, { matricNumber: emailOrId }]
-    });
-
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-
-    const token = jwt.sign(
-      { id: user._id, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: '7d' }
-    );
-
+    // Generate tokens
     const accessToken = jwt.sign(
       { id: user._id, email: user.email },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "15m" } // short-lived
+      { expiresIn: "15m" }
     );
 
     const refreshToken = jwt.sign(
       { id: user._id },
       process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: "7d" } // long-lived
+      { expiresIn: "7d" }
     );
 
+    // Store refresh token in httpOnly cookie
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: false, // true in production
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
-    res.json({
-      message: 'Login successful',
-      token,
+    res.status(201).json({
+      message: "Account created successfully",
       accessToken,
-      refreshToken,
       user: {
         id: user._id,
         fullName: user.fullName,
@@ -137,31 +86,116 @@ export const loginUser = async (req, res) => {
         phoneNumber: user.phoneNumber,
         faculty: user.faculty,
         department: user.department,
-      }
+      },
     });
-
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Register error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
+export const loginUser = async (req, res) => {
+  try {
+    const { emailOrId, password } = req.body;
+
+    if (!emailOrId || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    const user = await User.findOne({
+      $or: [{ email: emailOrId.toLowerCase() }, { matricNumber: emailOrId }],
+    });
+
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const accessToken = jwt.sign(
+      { id: user._id, email: user.email },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "15m" }
+    );
+
+    const refreshToken = jwt.sign(
+      { id: user._id },
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: false, // true in production
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.json({
+      message: "Login successful",
+      accessToken,
+      user: {
+        id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        matricNumber: user.matricNumber,
+        phoneNumber: user.phoneNumber,
+        faculty: user.faculty,
+        department: user.department,
+      },
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const refreshAccessToken = (req, res) => {
+  const token = req.cookies.refreshToken;
+
+  if (!token) {
+    return res.status(401).json({ message: "No refresh token" });
+  }
+
+  try {
+    const payload = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
+
+    const accessToken = jwt.sign(
+      { id: payload.id },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "15m" }
+    );
+
+    res.json({ accessToken });
+  } catch (err) {
+    return res.status(403).json({ message: "Invalid refresh token" });
+  }
+};
+
+export const logout = (req, res) => {
+  res.clearCookie("refreshToken");
+  res.json({ message: "Logged out" });
+};
 
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   try {
     const user = await User.findOne({ email });
+
     if (!user) {
       return res.status(200).json({
-        message: "If an account exists with this email, a reset link has been sent."
+        message: "If an account exists with this email, a reset link has been sent.",
       });
     }
 
     const resetToken = user.createPasswordResetToken();
     await user.save();
 
-    const resetUrl = `http://localhost:3000/auth/reset-password/${resetToken}`;
+    const resetUrl = `http://localhost:5173/auth/reset-password/${resetToken}`;
 
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
@@ -173,22 +207,19 @@ export const forgotPassword = async (req, res) => {
       },
     });
 
-    const message = {
-  from: process.env.SMTP_FROM,
-  to: user.email,
-  subject: "Password Reset Request",
-  text: `You requested a password reset. Visit the following link to reset your password: ${resetUrl}`,
-  html: `
-    <p>You requested a password reset.</p>
-    <p>Click <a href="${resetUrl}" target="_blank">here</a> to reset your password.</p>
-    <p>If you did not request this, please ignore this email.</p>
-  `,
-};
-
-    await transporter.sendMail(message);
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM,
+      to: user.email,
+      subject: "Password Reset Request",
+      html: `
+        <p>You requested a password reset.</p>
+        <p>Click <a href="${resetUrl}" target="_blank">here</a> to reset your password.</p>
+        <p>If you did not request this, please ignore this email.</p>
+      `,
+    });
 
     res.status(200).json({
-      message: "If an account exists with this email, a reset link has been sent."
+      message: "If an account exists with this email, a reset link has been sent.",
     });
   } catch (error) {
     console.error("Forgot password error:", error);
@@ -196,7 +227,6 @@ export const forgotPassword = async (req, res) => {
   }
 };
 
-// Reset password
 export const resetPassword = async (req, res) => {
   const { token } = req.params;
   const { password } = req.body;
@@ -206,7 +236,7 @@ export const resetPassword = async (req, res) => {
 
     const user = await User.findOne({
       resetPasswordToken: hashedToken,
-      resetPasswordExpires: { $gt: Date.now() }, // note the corrected field name
+      resetPasswordExpires: { $gt: Date.now() },
     });
 
     if (!user) {
@@ -216,6 +246,7 @@ export const resetPassword = async (req, res) => {
     user.password = password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
+
     await user.save();
 
     res.status(200).json({ message: "Password has been reset successfully" });
@@ -224,4 +255,3 @@ export const resetPassword = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
