@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Mail, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import api from "../lib/axios"; // Make sure this points to your axios instance
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -27,15 +28,26 @@ const ForgotPassword = () => {
 
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      // Call your backend API
+      await api.post("/auth/forgot-password", { email });
+
       setIsSubmitted(true);
+
       toast({
         title: "Email Sent",
-        description: "Check your inbox for password reset instructions",
+        description: `If an account exists with ${email}, a reset link has been sent`,
       });
-    }, 1500);
+    } catch (error: any) {
+      console.error(error);
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "Something went wrong",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -72,6 +84,7 @@ const ForgotPassword = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="rounded-xl border-border focus:border-primary"
+                    disabled={isLoading}
                   />
                 </div>
 

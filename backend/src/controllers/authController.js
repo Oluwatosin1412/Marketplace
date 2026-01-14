@@ -7,17 +7,15 @@ import User from "../models/User.js";
 const passwordRequirements = /^(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$/;
 const isProduction = process.env.NODE_ENV === "production";
 
-/* ================= TOKEN COOKIE HELPER ================= */
 const sendRefreshToken = (res, token) => {
   res.cookie("refreshToken", token, {
     httpOnly: true,
-    secure: isProduction,      // MUST be true on Render
-    sameSite: "none",          // REQUIRED for Vercel ↔ Render
+    secure: isProduction,
+    sameSite: "none",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 };
 
-/* ================= REGISTER ================= */
 export const registerUser = async (req, res) => {
   try {
     const {
@@ -82,7 +80,6 @@ export const registerUser = async (req, res) => {
   }
 };
 
-/* ================= LOGIN ================= */
 export const loginUser = async (req, res) => {
   try {
     const { emailOrId, password } = req.body;
@@ -122,7 +119,6 @@ export const loginUser = async (req, res) => {
   }
 };
 
-/* ================= REFRESH ================= */
 export const refreshAccessToken = (req, res) => {
   try {
     const token = req.cookies.refreshToken;
@@ -142,7 +138,6 @@ export const refreshAccessToken = (req, res) => {
   }
 };
 
-/* ================= LOGOUT ================= */
 export const logout = (req, res) => {
   res.clearCookie("refreshToken", {
     sameSite: "none",
@@ -151,7 +146,6 @@ export const logout = (req, res) => {
   res.json({ message: "Logged out" });
 };
 
-/* ================= FORGOT PASSWORD ================= */
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
