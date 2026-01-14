@@ -149,35 +149,51 @@ export const logout = (req, res) => {
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
+
+    if (!email) return res.status(400).json({ message: "Email is required" });
+
     const user = await User.findOne({ email });
 
+    // Always return success to prevent email enumeration
     if (!user)
       return res.status(200).json({ message: "Reset email sent if account exists" });
 
     const resetToken = user.createPasswordResetToken();
-    await user.save();
+    await user.save({ validateBeforeSave: false });
 
     const resetUrl = `${process.env.FRONTEND_URL}/auth/reset-password/${resetToken}`;
 
+    // Configure transporter
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT,
-      secure: false,
+      port: parseInt(process.env.SMTP_PORT),
+      secure: process.env.SMTP_PORT == "465", // true for 465, false for 587
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
     });
 
-    await transporter.sendMail({
-      from: process.env.SMTP_FROM,
-      to: user.email,
-      subject: "Password Reset",
-      html: `<p>Click <a href="${resetUrl}">here</a> to reset your password</p>`,
-    });
+    try {
+      await transporter.sendMail({
+        from: process.env.SMTP_FROM,
+        to: user.email,
+        subject: "Password Reset Request",
+        html: `
+          <p>Hello ${user.fullName || ""},</p>
+          <p>You requested a password reset.</p>
+          <p>Click <a href="${resetUrl}" target="_blank">here</a> to reset your password.</p>
+          <p>If you did not request this, ignore this email.</p>
+        `,
+      });
+    } catch (emailError) {
+      console.error("Nodemailer error:", emailError);
+      return res.status(500).json({ message: "Failed to send reset email" });
+    }
 
-    res.json({ message: "Reset email sent" });
+    res.status(200).json({ message: "Reset email sent" });
   } catch (error) {
+    console.error("Forgot password error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -185,24 +201,29 @@ export const forgotPassword = async (req, res) => {
 /* ================= RESET PASSWORD ================= */
 export const resetPassword = async (req, res) => {
   try {
-    const hashedToken = crypto.createHash("sha256").update(req.params.token).digest("hex");
+    const { token } = req.params;
+    const { password } = req.body;
+
+    if (!password) return res.status(400).json({ message: "Password is required" });
+
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
     const user = await User.findOne({
       resetPasswordToken: hashedToken,
       resetPasswordExpires: { $gt: Date.now() },
     });
 
-    if (!user)
-      return res.status(400).json({ message: "Invalid or expired token" });
+    if (!user) return res.status(400).json({ message: "Invalid or expired token" });
 
-    user.password = req.body.password;
+    user.password = password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
 
     await user.save();
 
-    res.json({ message: "Password reset successful" });
-  } catch {
+    res.status(200).json({ message: "Password reset successful" });
+  } catch (error) {
+    console.error("Reset password error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
