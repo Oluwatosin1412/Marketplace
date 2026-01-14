@@ -17,6 +17,9 @@ oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 export async function sendEmail({ to, subject, text, html }) {
   try {
     const accessTokenObj = await oAuth2Client.getAccessToken();
+    if (!accessTokenObj || !accessTokenObj.token) {
+        throw new Error("No refresh token or access token could be retrieved.");
+    }
     const accessToken = accessTokenObj?.token;
 
     if (!accessToken) throw new Error('Failed to retrieve access token');
