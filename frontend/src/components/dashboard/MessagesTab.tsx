@@ -58,7 +58,11 @@ const MessagesTab = ({ messages }: MessagesTabProps) => {
               Connect with other users, share tips, and discuss marketplace trends!
             </p>
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-              <Button size="sm" className="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 rounded-xl">
+              <Button 
+                size="sm" 
+                className="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 rounded-xl"
+                onClick={() => navigate('/community-chat')}
+              >
                 Join Chat
               </Button>
               <Button size="sm" variant="outline" className="rounded-xl border-border">

@@ -258,11 +258,16 @@ const Dashboard = () => {
     service.provider.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleProfileClick = () => {
+    setActiveTab("profile");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <DashboardHeader 
         mobileMenuOpen={mobileMenuOpen}
         setMobileMenuOpen={setMobileMenuOpen}
+        onProfileClick={handleProfileClick}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
@@ -277,7 +282,7 @@ const Dashboard = () => {
           <div className="relative group">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl md:rounded-2xl blur opacity-10 group-hover:opacity-20 transition-opacity"></div>
             <div className="relative bg-card/95 backdrop-blur-md shadow-xl border-0 rounded-xl md:rounded-2xl p-1 md:p-2">
-              <TabsList className="grid w-full grid-cols-7 bg-transparent gap-1">
+              <TabsList className="grid w-full grid-cols-8 bg-transparent gap-1">
                 <TabsTrigger value="overview" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white rounded-lg md:rounded-xl p-2 md:p-3">
                   <LayoutDashboard className="h-4 w-4 md:hidden" />
                   <span className="hidden md:inline">Overview</span>
@@ -305,6 +310,10 @@ const Dashboard = () => {
                 <TabsTrigger value="wishlist" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white rounded-lg md:rounded-xl p-2 md:p-3">
                   <Heart className="h-4 w-4 md:hidden" />
                   <span className="hidden md:inline">Wishlist</span>
+                </TabsTrigger>
+                <TabsTrigger value="profile" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white rounded-lg md:rounded-xl p-2 md:p-3">
+                  <UserCircle className="h-4 w-4 md:hidden" />
+                  <span className="hidden md:inline">Profile</span>
                 </TabsTrigger>
               </TabsList>
             </div>

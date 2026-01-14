@@ -1,5 +1,6 @@
+
 import { Button } from "@/components/ui/button";
-import { Menu, User, ShoppingBag, Settings } from "lucide-react";
+import { Menu, User, ShoppingBag, Settings, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { NotificationsDropdown } from "@/components/NotificationsDropdown";
@@ -8,9 +9,10 @@ import { LogoutConfirmDialog } from "@/components/LogoutConfirmDialog";
 interface DashboardHeaderProps {
   mobileMenuOpen: boolean;
   setMobileMenuOpen: (open: boolean) => void;
+  onProfileClick?: () => void;
 }
 
-const DashboardHeader = ({ mobileMenuOpen, setMobileMenuOpen }: DashboardHeaderProps) => {
+const DashboardHeader = ({ mobileMenuOpen, setMobileMenuOpen, onProfileClick }: DashboardHeaderProps) => {
   const navigate = useNavigate();
 
   const handleMobileHeaderClick = () => {
@@ -19,6 +21,13 @@ const DashboardHeader = ({ mobileMenuOpen, setMobileMenuOpen }: DashboardHeaderP
     } else {
       window.location.reload();
     }
+  };
+
+  const handleProfileClick = () => {
+    if (onProfileClick) {
+      onProfileClick();
+    }
+    setMobileMenuOpen(false);
   };
 
   return (
@@ -45,11 +54,15 @@ const DashboardHeader = ({ mobileMenuOpen, setMobileMenuOpen }: DashboardHeaderP
           <div className="hidden md:flex items-center space-x-2">
             <ThemeToggle />
             <NotificationsDropdown />
+            <Button variant="ghost" size="sm" className="hover:bg-accent" onClick={() => navigate('/chat')}>
+              <MessageCircle className="h-4 w-4 mr-2" />
+              Chat
+            </Button>
             <Button variant="ghost" size="sm" className="hover:bg-accent" onClick={() => navigate('/settings')}>
               <Settings className="h-4 w-4 mr-2" />
               Settings
             </Button>
-            <Button variant="ghost" size="sm" className="hover:bg-accent">
+            <Button variant="ghost" size="sm" className="hover:bg-accent" onClick={handleProfileClick}>
               <User className="h-4 w-4 mr-2" />
               Profile
             </Button>
@@ -75,12 +88,26 @@ const DashboardHeader = ({ mobileMenuOpen, setMobileMenuOpen }: DashboardHeaderP
                   variant="ghost" 
                   size="sm" 
                   className="w-full justify-start px-4 py-2 hover:bg-accent"
-                  onClick={() => navigate('/settings')}
+                  onClick={() => { navigate('/chat'); setMobileMenuOpen(false); }}
+                >
+                  <MessageCircle className="h-4 w-4 mr-3" />
+                  Chat
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="w-full justify-start px-4 py-2 hover:bg-accent"
+                  onClick={() => { navigate('/settings'); setMobileMenuOpen(false); }}
                 >
                   <Settings className="h-4 w-4 mr-3" />
                   Settings
                 </Button>
-                <Button variant="ghost" size="sm" className="w-full justify-start px-4 py-2 hover:bg-accent">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="w-full justify-start px-4 py-2 hover:bg-accent"
+                  onClick={handleProfileClick}
+                >
                   <User className="h-4 w-4 mr-3" />
                   Profile
                 </Button>

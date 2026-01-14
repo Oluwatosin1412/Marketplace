@@ -18,6 +18,9 @@ import SellerProfile from "./pages/SellerProfile";
 import Categories from "./pages/Categories";
 import Chat from "./pages/Chat";
 import GroupChat from "./pages/GroupChat";
+import CommunityChat from "./pages/CommunityChat";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,6 +48,9 @@ const App = () => (
             <Route path="/chat" element={<Chat />} />
             <Route path="/chat/:conversationId" element={<Chat />} />
             <Route path="/groups" element={<GroupChat />} />
+            <Route path="/community-chat" element={<CommunityChat />} />
+            <Route path="/admin" element={<AdminLogin />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
