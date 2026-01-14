@@ -149,8 +149,8 @@ const AuthLogin = () => {
                 </form>
 
                 <div className="mt-6 text-center">
-                  <Link to="/auth/register" className="text-blue-600">
-                    Create an account
+                  <Link to="/auth/forgot-password" className="text-blue-600">
+                    Forgotten Your Password
                   </Link>
                 </div>
               </CardContent>
