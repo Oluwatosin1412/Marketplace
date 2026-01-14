@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Wrench, Users, MessageCircle } from "lucide-react";
+import { Plus, Wrench, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const QuickActions = () => {
@@ -55,19 +55,6 @@ const QuickActions = () => {
               </div>
             </Link>
 
-            <Link to="/groups" className="group">
-              <div className="p-8 rounded-2xl bg-gradient-to-br from-orange-500/10 to-amber-500/20 hover:from-orange-500/20 hover:to-amber-500/30 transition-all duration-300 border-2 border-dashed border-orange-500/30 hover:border-orange-500/50 group-hover:scale-105">
-                <div className="flex items-center space-x-4">
-                  <div className="p-4 bg-gradient-to-r from-orange-600 to-amber-600 rounded-2xl group-hover:scale-110 transition-transform duration-300">
-                    <Users className="h-8 w-8 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-foreground mb-2">Group Chats</h3>
-                    <p className="text-muted-foreground">Join community discussions</p>
-                  </div>
-                </div>
-              </div>
-            </Link>
           </div>
         </CardContent>
       </Card>

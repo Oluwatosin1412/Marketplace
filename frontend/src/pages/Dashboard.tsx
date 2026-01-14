@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,12 +21,22 @@ import ProfileTab from "@/components/dashboard/ProfileTab";
 import OrderHistoryTab from "@/components/dashboard/OrderHistoryTab";
 
 const Dashboard = () => {
+  const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("overview");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [priceRange, setPriceRange] = useState({ min: "", max: "" });
   const [wishlist, setWishlist] = useState<number[]>([1, 3, 5]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Handle tab from URL query parameter
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['overview', 'products', 'services', 'listings', 'orders', 'messages', 'wishlist', 'profile'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
   const [messages, setMessages] = useState([
     {
       id: 1,
