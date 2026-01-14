@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "https://marketplace-y6en.onrender.com/api";
 
 export const registerUser = async (formData) => {
   const response = await axios.post(`${API_BASE_URL}/auth/register`, formData);
