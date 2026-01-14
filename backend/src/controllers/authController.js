@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import validator from "validator";
 import crypto from "crypto";
-import nodemailer from "nodemailer";
+import { sendEmail } from "../services/emailService.js";
 import User from "../models/User.js";
 
 const passwordRequirements = /^(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$/;
@@ -150,45 +150,41 @@ export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
-    if (!email) return res.status(400).json({ message: "Email is required" });
+    if (!email)
+      return res.status(400).json({ message: "Email is required" });
 
     const user = await User.findOne({ email });
 
     // Always return success to prevent email enumeration
     if (!user)
-      return res.status(200).json({ message: "Reset email sent if account exists" });
+      return res
+        .status(200)
+        .json({ message: "Reset email sent if account exists" });
 
+    // Generate reset token
     const resetToken = user.createPasswordResetToken();
     await user.save({ validateBeforeSave: false });
 
     const resetUrl = `${process.env.FRONTEND_URL}/auth/reset-password/${resetToken}`;
 
-    // Configure transporter
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT),
-      secure: process.env.SMTP_PORT == "465", // true for 465, false for 587
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
-
+    // Send email via Gmail API
     try {
-      await transporter.sendMail({
-        from: process.env.SMTP_FROM,
+      await sendEmail({
         to: user.email,
-        subject: "Password Reset Request",
+        subject: "FUTO Marketplace Password Reset",
         html: `
           <p>Hello ${user.fullName || ""},</p>
           <p>You requested a password reset.</p>
           <p>Click <a href="${resetUrl}" target="_blank">here</a> to reset your password.</p>
           <p>If you did not request this, ignore this email.</p>
         `,
+        text: `Hello ${user.fullName || ""},\n\nYou requested a password reset.\n\nReset your password here: ${resetUrl}\n\nIf you did not request this, ignore this email.`,
       });
     } catch (emailError) {
-      console.error("Nodemailer error:", emailError);
-      return res.status(500).json({ message: "Failed to send reset email" });
+      console.error("Gmail API error:", emailError);
+      return res
+        .status(500)
+        .json({ message: "Failed to send reset email" });
     }
 
     res.status(200).json({ message: "Reset email sent" });
@@ -197,6 +193,7 @@ export const forgotPassword = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 /* ================= RESET PASSWORD ================= */
 export const resetPassword = async (req, res) => {
