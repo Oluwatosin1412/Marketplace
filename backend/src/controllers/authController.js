@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken";
 import validator from "validator";
 import crypto from "crypto";
-import { sendEmail } from "../services/emailService.js";
 import User from "../models/User.js";
+import { sendEmail } from "../services/emailService.js";
 
 const passwordRequirements = /^(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}$/;
 const isProduction = process.env.NODE_ENV === "production";
@@ -16,6 +16,7 @@ const sendRefreshToken = (res, token) => {
   });
 };
 
+/* ================= REGISTER ================= */
 export const registerUser = async (req, res) => {
   try {
     const {
@@ -80,6 +81,7 @@ export const registerUser = async (req, res) => {
   }
 };
 
+/* ================= LOGIN ================= */
 export const loginUser = async (req, res) => {
   try {
     const { emailOrId, password } = req.body;
@@ -119,6 +121,7 @@ export const loginUser = async (req, res) => {
   }
 };
 
+/* ================= REFRESH ACCESS TOKEN ================= */
 export const refreshAccessToken = (req, res) => {
   try {
     const token = req.cookies.refreshToken;
@@ -138,6 +141,7 @@ export const refreshAccessToken = (req, res) => {
   }
 };
 
+/* ================= LOGOUT ================= */
 export const logout = (req, res) => {
   res.clearCookie("refreshToken", {
     sameSite: "none",
@@ -146,6 +150,7 @@ export const logout = (req, res) => {
   res.json({ message: "Logged out" });
 };
 
+/* ================= FORGOT PASSWORD ================= */
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -161,13 +166,11 @@ export const forgotPassword = async (req, res) => {
         .status(200)
         .json({ message: "Reset email sent if account exists" });
 
-    // Generate reset token
     const resetToken = user.createPasswordResetToken();
     await user.save({ validateBeforeSave: false });
 
     const resetUrl = `${process.env.FRONTEND_URL}/auth/reset-password/${resetToken}`;
 
-    // Send email via Gmail API
     try {
       await sendEmail({
         to: user.email,
@@ -194,14 +197,14 @@ export const forgotPassword = async (req, res) => {
   }
 };
 
-
 /* ================= RESET PASSWORD ================= */
 export const resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
     const { password } = req.body;
 
-    if (!password) return res.status(400).json({ message: "Password is required" });
+    if (!password)
+      return res.status(400).json({ message: "Password is required" });
 
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
@@ -210,7 +213,8 @@ export const resetPassword = async (req, res) => {
       resetPasswordExpires: { $gt: Date.now() },
     });
 
-    if (!user) return res.status(400).json({ message: "Invalid or expired token" });
+    if (!user)
+      return res.status(400).json({ message: "Invalid or expired token" });
 
     user.password = password;
     user.resetPasswordToken = undefined;
