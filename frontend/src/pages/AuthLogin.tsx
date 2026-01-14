@@ -12,9 +12,10 @@ const AuthLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    emailOrId: '',
-    password: ''
+    emailOrId: "",
+    password: ""
   });
+
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -23,34 +24,29 @@ const AuthLogin = () => {
     setIsLoading(true);
 
     try {
-      // Call login API
+      // Login request (cookies automatically included)
       const response = await api.post("/auth/login", formData);
       const data = response.data;
 
       console.log("Login Response:", data);
 
-      // Store tokens in localStorage
+      // Store ONLY access token (refresh token is in httpOnly cookie)
       localStorage.setItem("accessToken", data.accessToken);
-      localStorage.setItem("refreshToken", data.refreshToken);
-
-      // Store user info
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      // Success toast
       toast({
         title: "Welcome back!",
         description: `Hello, ${data.user.fullName}`,
       });
 
-      // Redirect to dashboard
       navigate("/dashboard");
-
     } catch (error: any) {
-      console.error(error);
+      console.error("Login error:", error);
+
       toast({
         title: "Login failed",
-        description: error.response?.data?.message || "Please check your credentials",
-        variant: "destructive"
+        description: error.response?.data?.message || "Invalid credentials",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -72,10 +68,12 @@ const AuthLogin = () => {
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   FUTO Marketplace
                 </h1>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Campus Commerce Hub</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Campus Commerce Hub
+                </p>
               </div>
             </Link>
-            
+
             <Link to="/auth/register">
               <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
                 Sign Up
@@ -90,7 +88,9 @@ const AuthLogin = () => {
         <div className="max-w-md w-full space-y-8 animate-fade-in">
           <div className="text-center space-y-4">
             <h2 className="text-4xl font-bold text-foreground">Welcome back</h2>
-            <p className="text-lg text-muted-foreground">Sign in to your account and continue your journey</p>
+            <p className="text-lg text-muted-foreground">
+              Sign in to your account and continue your journey
+            </p>
           </div>
 
           <div className="relative group">
@@ -99,76 +99,59 @@ const AuthLogin = () => {
               <CardContent className="p-8">
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="emailOrId" className="text-foreground font-medium">Email or Student Matric Number</Label>
+                    <Label htmlFor="emailOrId">
+                      Email or Student Matric Number
+                    </Label>
                     <Input
                       id="emailOrId"
-                      type="text"
-                      required
                       value={formData.emailOrId}
-                      onChange={(e) => setFormData({...formData, emailOrId: e.target.value})}
-                      placeholder="Enter email or student matric number"
-                      className="h-12 bg-muted border-border focus:border-blue-500 focus:ring-blue-500 rounded-xl text-foreground placeholder:text-muted-foreground"
+                      onChange={(e) =>
+                        setFormData({ ...formData, emailOrId: e.target.value })
+                      }
+                      required
                       disabled={isLoading}
+                      placeholder="Enter email or matric number"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="password" className="text-foreground font-medium">Password</Label>
+                    <Label htmlFor="password">Password</Label>
                     <div className="relative">
                       <Input
                         id="password"
                         type={showPassword ? "text" : "password"}
-                        required
                         value={formData.password}
-                        onChange={(e) => setFormData({...formData, password: e.target.value})}
-                        placeholder="Enter password"
-                        className="h-12 bg-muted border-border focus:border-blue-500 focus:ring-blue-500 rounded-xl pr-12 text-foreground placeholder:text-muted-foreground"
+                        onChange={(e) =>
+                          setFormData({ ...formData, password: e.target.value })
+                        }
+                        required
                         disabled={isLoading}
                       />
                       <button
                         type="button"
-                        className="absolute inset-y-0 right-0 pr-4 flex items-center hover:bg-muted rounded-r-xl transition-colors"
+                        className="absolute inset-y-0 right-3"
                         onClick={() => setShowPassword(!showPassword)}
-                        disabled={isLoading}
                       >
-                        {showPassword ? (
-                          <EyeOff className="h-5 w-5 text-muted-foreground" />
-                        ) : (
-                          <Eye className="h-5 w-5 text-muted-foreground" />
-                        )}
+                        {showPassword ? <EyeOff /> : <Eye />}
                       </button>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <Link to="/auth/forgot-password" className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors">
-                      Forgot password?
-                    </Link>
-                  </div>
-
-                  <Button 
-                    type="submit" 
-                    className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 rounded-xl text-lg font-medium" 
-                    disabled={isLoading}
-                  >
+                  <Button type="submit" disabled={isLoading} className="w-full">
                     {isLoading ? (
                       <>
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                        Signing In...
+                        <Loader2 className="mr-2 animate-spin" /> Signing in...
                       </>
                     ) : (
-                      'Sign In'
+                      "Sign In"
                     )}
                   </Button>
                 </form>
 
-                <div className="mt-8 text-center">
-                  <p className="text-muted-foreground">
-                    Don't have an account?{' '}
-                    <Link to="/auth/register" className="text-blue-600 hover:text-blue-700 font-semibold transition-colors">
-                      Sign up here
-                    </Link>
-                  </p>
+                <div className="mt-6 text-center">
+                  <Link to="/auth/register" className="text-blue-600">
+                    Create an account
+                  </Link>
                 </div>
               </CardContent>
             </Card>
