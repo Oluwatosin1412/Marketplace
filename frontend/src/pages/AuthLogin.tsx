@@ -150,7 +150,7 @@ const AuthLogin = () => {
 
                 <div className="mt-6 text-center">
                   <Link to="/auth/forgot-password" className="text-blue-600">
-                    Forgotten Your Password
+                    Forgotten Your Password?
                   </Link>
                 </div>
               </CardContent>

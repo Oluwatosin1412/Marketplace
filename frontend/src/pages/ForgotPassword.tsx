@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Mail, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import api from "../lib/axios"; // Make sure this points to your axios instance
+import api from "../lib/axios"; // your axios instance
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -16,7 +16,7 @@ const ForgotPassword = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email) {
       toast({
         title: "Error",
@@ -27,22 +27,23 @@ const ForgotPassword = () => {
     }
 
     setIsLoading(true);
-    
+
     try {
-      // Call your backend API
-      await api.post("/auth/forgot-password", { email });
+      // Call backend forgot-password endpoint
+      const response = await api.post("/auth/forgot-password", { email });
 
+      // Backend always responds 200, even if email doesn't exist
       setIsSubmitted(true);
-
       toast({
         title: "Email Sent",
-        description: `If an account exists with ${email}, a reset link has been sent`,
+        description: "Check your inbox for password reset instructions",
       });
     } catch (error: any) {
-      console.error(error);
+      console.error("Forgot password error:", error);
       toast({
         title: "Error",
-        description: error.response?.data?.message || "Something went wrong",
+        description:
+          error.response?.data?.message || "Something went wrong. Try again later.",
         variant: "destructive",
       });
     } finally {
@@ -66,10 +67,9 @@ const ForgotPassword = () => {
               {isSubmitted ? "Check Your Email" : "Forgot Password?"}
             </CardTitle>
             <CardDescription className="text-muted-foreground">
-              {isSubmitted 
+              {isSubmitted
                 ? "We've sent password reset instructions to your email address"
-                : "No worries! Enter your email and we'll send you reset instructions"
-              }
+                : "No worries! Enter your email and we'll send you reset instructions"}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -88,8 +88,8 @@ const ForgotPassword = () => {
                   />
                 </div>
 
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-xl h-12"
                   disabled={isLoading}
                 >
@@ -103,10 +103,10 @@ const ForgotPassword = () => {
                     If an account exists with <strong>{email}</strong>, you will receive an email shortly.
                   </p>
                 </div>
-                
-                <Button 
+
+                <Button
                   onClick={() => setIsSubmitted(false)}
-                  variant="outline" 
+                  variant="outline"
                   className="w-full rounded-xl h-12"
                 >
                   Try Another Email
@@ -115,8 +115,8 @@ const ForgotPassword = () => {
             )}
 
             <div className="mt-6 text-center">
-              <Link 
-                to="/auth/login" 
+              <Link
+                to="/auth/login"
                 className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
               >
                 <ArrowLeft className="h-4 w-4" />
