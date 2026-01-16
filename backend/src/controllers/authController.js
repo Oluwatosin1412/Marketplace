@@ -16,7 +16,6 @@ const sendRefreshToken = (res, token) => {
   });
 };
 
-/* ================= REGISTER ================= */
 export const registerUser = async (req, res) => {
   try {
     const {
@@ -81,7 +80,6 @@ export const registerUser = async (req, res) => {
   }
 };
 
-/* ================= LOGIN ================= */
 export const loginUser = async (req, res) => {
   try {
     const { emailOrId, password } = req.body;
@@ -121,7 +119,6 @@ export const loginUser = async (req, res) => {
   }
 };
 
-/* ================= REFRESH ACCESS TOKEN ================= */
 export const refreshAccessToken = (req, res) => {
   try {
     const token = req.cookies.refreshToken;
@@ -141,7 +138,6 @@ export const refreshAccessToken = (req, res) => {
   }
 };
 
-/* ================= LOGOUT ================= */
 export const logout = (req, res) => {
   res.clearCookie("refreshToken", {
     sameSite: "none",
@@ -150,7 +146,6 @@ export const logout = (req, res) => {
   res.json({ message: "Logged out" });
 };
 
-/* ================= FORGOT PASSWORD ================= */
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -160,35 +155,40 @@ export const forgotPassword = async (req, res) => {
 
     const user = await User.findOne({ email });
 
-    // Always return success to prevent email enumeration
+    // Prevent email enumeration
     if (!user)
-      return res
-        .status(200)
-        .json({ message: "Reset email sent if account exists" });
+      return res.status(200).json({
+        message: "Reset email sent if account exists",
+      });
 
+    // Create reset token
     const resetToken = user.createPasswordResetToken();
     await user.save({ validateBeforeSave: false });
 
     const resetUrl = `${process.env.FRONTEND_URL}/auth/reset-password/${resetToken}`;
 
-    try {
-      await sendEmail({
-        to: user.email,
-        subject: "FUTO Marketplace Password Reset",
-        html: `
-          <p>Hello ${user.fullName || ""},</p>
-          <p>You requested a password reset.</p>
-          <p>Click <a href="${resetUrl}" target="_blank">here</a> to reset your password.</p>
-          <p>If you did not request this, ignore this email.</p>
-        `,
-        text: `Hello ${user.fullName || ""},\n\nYou requested a password reset.\n\nReset your password here: ${resetUrl}\n\nIf you did not request this, ignore this email.`,
-      });
-    } catch (emailError) {
-      console.error("Gmail API error:", emailError);
-      return res
-        .status(500)
-        .json({ message: "Failed to send reset email" });
-    }
+    await sendEmail({
+      to: user.email,
+      subject: "FUTO Marketplace – Password Reset",
+      text: `Hello ${user.fullName || ""},
+
+You requested a password reset.
+
+Reset your password using the link below:
+${resetUrl}
+
+If you did not request this, please ignore this email.
+`,
+      html: `
+        <p>Hello ${user.fullName || ""},</p>
+        <p>You requested a password reset.</p>
+        <p>
+          Click <a href="${resetUrl}" target="_blank">
+          here</a> to reset your password.
+        </p>
+        <p>If you did not request this, please ignore this email.</p>
+      `,
+    });
 
     res.status(200).json({ message: "Reset email sent" });
   } catch (error) {
@@ -197,7 +197,6 @@ export const forgotPassword = async (req, res) => {
   }
 };
 
-/* ================= RESET PASSWORD ================= */
 export const resetPassword = async (req, res) => {
   try {
     const { token } = req.params;
@@ -206,7 +205,10 @@ export const resetPassword = async (req, res) => {
     if (!password)
       return res.status(400).json({ message: "Password is required" });
 
-    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
 
     const user = await User.findOne({
       resetPasswordToken: hashedToken,

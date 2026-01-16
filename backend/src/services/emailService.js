@@ -1,54 +1,20 @@
-import nodemailer from 'nodemailer';
-import { google } from 'googleapis';
+import { Resend } from "resend";
 
-const CLIENT_ID = process.env.GMAIL_CLIENT_ID;
-const CLIENT_SECRET = process.env.GMAIL_CLIENT_SECRET;
-const REDIRECT_URI = 'https://developers.google.com/oauthplayground';
-const REFRESH_TOKEN = process.env.GMAIL_REFRESH_TOKEN;
-
-const oAuth2Client = new google.auth.OAuth2(
-  CLIENT_ID,
-  CLIENT_SECRET,
-  REDIRECT_URI
-);
-
-oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendEmail({ to, subject, text, html }) {
   try {
-    const accessTokenObj = await oAuth2Client.getAccessToken();
-    if (!accessTokenObj || !accessTokenObj.token) {
-        throw new Error("No refresh token or access token could be retrieved.");
-    }
-    const accessToken = accessTokenObj?.token;
-
-    if (!accessToken) throw new Error('Failed to retrieve access token');
-
-    const transport = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        type: 'OAuth2',
-        user: process.env.GMAIL_USER,
-        clientId: CLIENT_ID,
-        clientSecret: CLIENT_SECRET,
-        refreshToken: REFRESH_TOKEN,
-        accessToken,
-      },
-    });
-
-    const mailOptions = {
-      from: `"FUTO Marketplace" <${process.env.GMAIL_USER}>`,
+    await resend.emails.send({
+      from: "FUTO Marketplace <akpofurelev@gmail.com>",
       to,
       subject,
       text,
       html,
-    };
+    });
 
-    const result = await transport.sendMail(mailOptions);
-    console.log('Email sent:', result.response);
-    return result;
+    console.log("Resend: email sent to", to);
   } catch (error) {
-    console.error('Email error:', error);
-    throw new Error('Email not sent');
+    console.error("Resend error:", error);
+    throw new Error("Email not sent");
   }
 }
