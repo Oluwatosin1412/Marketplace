@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ShoppingCart, Upload, ArrowLeft, X, Plus, GraduationCap, ShoppingBag } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import api from "../lib/axios";
 
 const CreateProduct = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -73,23 +73,52 @@ const CreateProduct = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    console.log('Creating product:', formData, 'Images:', selectedImages.length);
-    
+
+    if (!formData.title || !formData.description || !formData.price || !formData.category || !formData.condition || !formData.location) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      const data = new FormData();
+      data.append("title", formData.title);
+      data.append("description", formData.description);
+      data.append("price", formData.price);
+      data.append("category", formData.category);
+      data.append("condition", formData.condition);
+      data.append("location", formData.location);
+      if (formData.location === "off-campus") {
+        data.append("customAddress", formData.customAddress);
+      }
+
+      selectedImages.forEach((file) => {
+        data.append("images", file);
+      });
+
+      await api.post("/products", data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          // Authorization: `Bearer ${localStorage.getItem("token")}`, // Uncomment if backend requires JWT
+        },
+      });
+
       toast({
         title: "Product posted successfully!",
         description: "Your product is now available in the marketplace.",
       });
-      
-      navigate('/dashboard');
-    } catch (error) {
+
+      navigate("/dashboard");
+    } catch (error: any) {
+      console.error(error);
       toast({
         title: "Error posting product",
-        description: "Please try again later.",
-        variant: "destructive"
+        description: error.response?.data?.message || "Please try again later",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -98,7 +127,7 @@ const CreateProduct = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Modern Header */}
+      {/* Header */}
       <header className="backdrop-blur-glass border-b border-white/20 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-14 lg:h-16">
@@ -114,7 +143,7 @@ const CreateProduct = () => {
                 FUTO Marketplace
               </span>
             </Link>
-            
+
             <Link to="/dashboard">
               <Button variant="outline" size="sm" className="hover:bg-white/50 border-white/30 text-sm lg:text-base px-3 lg:px-4 py-2 min-h-[40px]">
                 <ArrowLeft className="h-4 w-4 mr-2" />
@@ -143,6 +172,7 @@ const CreateProduct = () => {
           </CardHeader>
           <CardContent className="p-4 lg:p-6">
             <form onSubmit={handleSubmit} className="space-y-4 lg:space-y-6">
+              {/* Product Title */}
               <div className="space-y-2">
                 <Label htmlFor="title" className="text-gray-700 font-medium text-sm lg:text-base">Product Title</Label>
                 <Input
@@ -156,6 +186,7 @@ const CreateProduct = () => {
                 />
               </div>
 
+              {/* Description */}
               <div className="space-y-2">
                 <Label htmlFor="description" className="text-gray-700 font-medium text-sm lg:text-base">Description</Label>
                 <Textarea
@@ -169,6 +200,7 @@ const CreateProduct = () => {
                 />
               </div>
 
+              {/* Price & Condition */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="price" className="text-gray-700 font-medium text-sm lg:text-base">Price (₦)</Label>
@@ -199,6 +231,7 @@ const CreateProduct = () => {
                 </div>
               </div>
 
+              {/* Category */}
               <div className="space-y-2">
                 <Label htmlFor="category" className="text-gray-700 font-medium text-sm lg:text-base">Category</Label>
                 <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
@@ -215,6 +248,7 @@ const CreateProduct = () => {
                 </Select>
               </div>
 
+              {/* Location */}
               <div className="space-y-2">
                 <Label htmlFor="location" className="text-gray-700 font-medium text-sm lg:text-base">Location</Label>
                 <Select value={formData.location} onValueChange={(value) => setFormData({...formData, location: value, customAddress: value !== 'off-campus' ? '' : formData.customAddress})}>
@@ -246,10 +280,9 @@ const CreateProduct = () => {
                 </div>
               )}
 
+              {/* Images */}
               <div className="space-y-4">
                 <Label className="text-gray-700 font-medium text-sm lg:text-base">Product Images (Max 5)</Label>
-                
-                {/* Image Upload Area */}
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 lg:p-6 text-center hover:border-blue-400 transition-colors duration-200">
                   <Upload className="mx-auto h-8 w-8 lg:h-12 lg:w-12 text-gray-400 mb-3 lg:mb-4" />
                   <div className="space-y-2">
@@ -269,7 +302,6 @@ const CreateProduct = () => {
                   </div>
                 </div>
 
-                {/* Image Previews */}
                 {imagePreviews.length > 0 && (
                   <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4">
                     {imagePreviews.map((preview, index) => (

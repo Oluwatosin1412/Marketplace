@@ -19,9 +19,6 @@ dotenv.config({
   path: path.resolve(__dirname, "../.env"),
 });
 
-console.log("MONGO_URI:", process.env.MONGO_URI);
-console.log("RESEND_API_KEY:", process.env.RESEND_API_KEY);
-
 
 const app = express();
 
