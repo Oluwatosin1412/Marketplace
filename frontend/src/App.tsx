@@ -10,9 +10,9 @@ import AuthRegister from "./pages/AuthRegister";
 import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import CreateProduct from "./pages/CreateProduct";
-import CreateService from "./pages/CreateService";
+import CreateService from "./pages/services/CreateService";
 import ProductDetail from "./pages/ProductDetail";
-import ServiceDetail from "./pages/ServiceDetail";
+import ServiceDetail from "./pages/services/ServiceDetail";
 import Settings from "./pages/Settings";
 import SellerProfile from "./pages/SellerProfile";
 import Categories from "./pages/Categories";
@@ -22,6 +22,8 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 import ResetPassword from "./pages/ResetPassword";
+import EditService from "./pages/services/EditServices";
+import Services from "./pages/services/Services";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +41,8 @@ const App = () => (
             <Route path="/auth/forgot-password" element={<ForgotPassword />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/create/product" element={<CreateProduct />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/services/edit/:id" element={<EditService />} />
             <Route path="/create/service" element={<CreateService />} />
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/service/:id" element={<ServiceDetail />} />

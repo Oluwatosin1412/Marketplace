@@ -20,7 +20,7 @@ import {
 import { ArrowLeft, X, GraduationCap, ShoppingBag } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import api from "../lib/axios";
+import api from "../../lib/axios";
 
 const MAX_IMAGES = 3;
 
