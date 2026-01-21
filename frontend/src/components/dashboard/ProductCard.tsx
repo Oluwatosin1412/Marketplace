@@ -30,10 +30,9 @@ const ProductCard = ({
   onSendMessage,
 }: ProductCardProps) => {
   const imageUrl =
-    product.images && product.images.length > 0
-      ? `${import.meta.env.VITE_API_URL}/uploads/${product.images[0]}`
-      : "/placeholder.png";
-
+  product.images?.length
+    ? `${API_BASE_URL.replace("/api", "")}/uploads/${product.images[0]}`
+    : "/placeholder.png";
   return (
     <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-white rounded-2xl overflow-hidden">
       {/* IMAGE */}
