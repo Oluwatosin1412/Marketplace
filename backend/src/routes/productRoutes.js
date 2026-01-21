@@ -1,11 +1,14 @@
 import express from "express";
-import { createProduct } from "../controllers/productController.js";
+import {
+  createProduct,
+  getMyProducts,
+  getSingleProduct,
+} from "../controllers/productController.js";
 import protect from "../middlewares/authMiddleware.js";
 import upload from "../middlewares/uploadMiddleware.js";
 import Product from "../models/Products.js";
 
 const router = express.Router();
-
 
 router.post(
   "/",
@@ -14,10 +17,16 @@ router.post(
   createProduct
 );
 
-// Get all products
-router.get("/", async (req,res) => {
-  const products = await Product.find().populate("postedBy", "fullName email");
+router.get("/", async (req, res) => {
+  const products = await Product.find({ sold: false })
+    .populate("postedBy", "fullName email")
+    .sort({ createdAt: -1 });
+
   res.json(products);
 });
+
+router.get("/mine", protect, getMyProducts);
+
+router.get("/:id", getSingleProduct);
 
 export default router;

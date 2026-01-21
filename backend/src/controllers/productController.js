@@ -43,3 +43,44 @@ export const createProduct = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const getAllProducts = async (req, res) => {
+  try {
+    const products = await Product.find({ sold: false })
+      .populate("postedBy", "fullName email")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json(products);
+  } catch (error) {
+    console.error("Get products error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getMyProducts = async (req, res) => {
+  try {
+    const products = await Product.find({
+      postedBy: req.user._id,
+    }).sort({ createdAt: -1 });
+
+    res.status(200).json(products);
+  } catch (error) {
+    console.error("Get my products error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getSingleProduct = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id)
+      .populate("postedBy", "fullName phoneNumber");
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};

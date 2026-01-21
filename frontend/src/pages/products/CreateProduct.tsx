@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ShoppingCart, Upload, ArrowLeft, X, Plus, GraduationCap, ShoppingBag } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import api from "../lib/axios";
+import api from "../../lib/axios";
 
 const CreateProduct = () => {
   const [isLoading, setIsLoading] = useState(false);
