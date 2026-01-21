@@ -2,81 +2,115 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Heart, User } from "lucide-react";
-import { Product } from "@/types/product";
+
+interface Product {
+  _id: string;
+  title: string;
+  category: string;
+  price: number;
+  condition: string;
+  location: string;
+  images: string[];
+  postedBy?: {
+    fullName?: string;
+  };
+}
 
 interface ProductCardProps {
   product: Product;
-  isInWishlist?: boolean;
-  onToggleWishlist?: (id: string) => void;
-  onSendMessage?: (userId: string) => void;
+  isInWishlist: boolean;
+  onToggleWishlist: () => void;
+  onSendMessage: () => void;
 }
 
 const ProductCard = ({
   product,
-  isInWishlist = false,
+  isInWishlist,
   onToggleWishlist,
   onSendMessage,
 }: ProductCardProps) => {
-  const imageUrl = product.images?.length
-    ? `${import.meta.env.VITE_API_BASE_URL}/uploads/${product.images[0]}`
-    : "/placeholder.jpg";
+  const imageUrl =
+    product.images && product.images.length > 0
+      ? `${import.meta.env.VITE_API_URL}/uploads/${product.images[0]}`
+      : "/placeholder.png";
 
   return (
-    <Card className="hover:shadow-xl transition rounded-2xl overflow-hidden">
-      <div className="relative aspect-video bg-gray-100">
-        <img
-          src={imageUrl}
-          alt={product.title}
-          className="w-full h-full object-cover"
-        />
-
-        {onToggleWishlist && (
-          <button
-            onClick={() => onToggleWishlist(product._id)}
-            className="absolute top-3 right-3 bg-white p-2 rounded-full"
-          >
-            <Heart
-              className={`h-5 w-5 ${
-                isInWishlist ? "text-red-500 fill-red-500" : "text-gray-400"
-              }`}
-            />
-          </button>
-        )}
-
-        <Badge className="absolute bottom-3 left-3 bg-blue-600 text-white">
-          {product.condition}
-        </Badge>
-      </div>
-
-      <CardContent className="p-5">
-        <h3 className="font-semibold text-lg">{product.title}</h3>
-        <p className="text-sm text-gray-500">{product.category}</p>
-
-        <div className="flex justify-between items-center mt-3">
-          <span className="text-xl font-bold text-blue-600">
-            ₦{product.price.toLocaleString()}
-          </span>
-          <span className="text-sm text-gray-500">{product.location}</span>
+    <Card className="group hover:shadow-xl transition-all duration-300 border-0 bg-white rounded-2xl overflow-hidden">
+      {/* IMAGE */}
+      <div className="relative">
+        <div className="aspect-video bg-gray-100">
+          <img
+            src={imageUrl}
+            alt={product.title}
+            className="w-full h-full object-cover"
+          />
         </div>
 
-        <div className="border-t mt-4 pt-3 flex justify-between items-center">
+        {/* WISHLIST */}
+        <button
+          type="button"
+          onClick={onToggleWishlist}
+          className="absolute top-3 right-3 p-2 bg-white rounded-full shadow hover:scale-105 transition"
+        >
+          <Heart
+            className={`h-5 w-5 ${
+              isInWishlist ? "text-red-500 fill-current" : "text-gray-400"
+            }`}
+          />
+        </button>
+
+        {/* CONDITION */}
+        <div className="absolute bottom-3 left-3">
+          <Badge
+            className={`rounded-full text-white ${
+              product.condition.toLowerCase() === "new"
+                ? "bg-green-600"
+                : "bg-blue-600"
+            }`}
+          >
+            {product.condition}
+          </Badge>
+        </div>
+      </div>
+
+      {/* CONTENT */}
+      <CardContent className="p-5">
+        <h3 className="font-semibold text-lg text-gray-900 line-clamp-1">
+          {product.title}
+        </h3>
+
+        <p className="text-sm text-gray-500 mb-2">
+          {product.category}
+        </p>
+
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-xl font-bold text-blue-600">
+            ₦{product.price.toLocaleString()}
+          </p>
+          <span className="text-sm text-gray-500">
+            {product.location}
+          </span>
+        </div>
+
+        <div className="border-t pt-4 flex items-center justify-between">
+          {/* SELLER */}
           <div className="flex items-center gap-2">
-            <div className="bg-blue-600 p-2 rounded-full">
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
               <User className="h-4 w-4 text-white" />
             </div>
-            <span className="text-sm font-medium">
-              {product.postedBy.fullName}
+            <span className="text-sm font-medium text-gray-700">
+              {product.postedBy?.fullName || "Unknown seller"}
             </span>
           </div>
 
-          {onSendMessage && (
-            <Button
-              size="sm"
-              onClick={() => onSendMessage(product.postedBy._id)}
-            >
-              Contact
-            </Button>
-          )}
+          {/* ACTION */}
+          <Button
+            size="sm"
+            className="rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+            onClick={onSendMessage}
+          >
+            Contact
+          </Button>
         </div>
       </CardContent>
     </Card>
