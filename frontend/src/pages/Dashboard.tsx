@@ -11,31 +11,17 @@ import {
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 import {
-  LayoutDashboard,
-  List,
-  Package,
-  Wrench,
-  Heart,
-  MessageCircle,
-  Search,
   Edit,
   Trash,
-  UserCircle,
-  History,
 } from "lucide-react";
 
 import { useToast } from "@/hooks/use-toast";
 
-// Dashboard components
+// Components
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsCards from "@/components/dashboard/StatsCards";
 import QuickActions from "@/components/dashboard/QuickActions";
@@ -51,41 +37,60 @@ const Dashboard = () => {
   const [searchParams] = useSearchParams();
 
   const [activeTab, setActiveTab] = useState("overview");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [priceRange, setPriceRange] = useState({ min: "", max: "" });
-  const [wishlist, setWishlist] = useState<string[]>([]);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // 🔹 DATA STATES
+  // DATA
   const [products, setProducts] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
   const [myProducts, setMyProducts] = useState<any[]>([]);
   const [myServices, setMyServices] = useState<any[]>([]);
   const [recentListings, setRecentListings] = useState<any[]>([]);
+  const [wishlist, setWishlist] = useState<string[]>([]);
 
-  // 🔹 TAB FROM URL
+  // TAB FROM URL
   useEffect(() => {
     const tab = searchParams.get("tab");
     if (tab) setActiveTab(tab);
   }, [searchParams]);
 
-  // 🔹 FETCH ALL DATA
+  // FETCH DATA
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [productsRes, servicesRes] = await Promise.all([
+        const [
+          productsRes,
+          servicesRes,
+          myProductsRes,
+          myServicesRes,
+        ] = await Promise.all([
           api.get("/products"),
           api.get("/services"),
+          api.get("/products/mine"),
+          api.get("/services/mine"),
         ]);
 
         setProducts(productsRes.data);
         setServices(servicesRes.data);
+        setMyProducts(myProductsRes.data);
+        setMyServices(myServicesRes.data);
 
-        // recent = latest 6 combined
+        // RECENT LISTINGS (merge + sort)
         const combined = [
-          ...productsRes.data.map((p: any) => ({ ...p, type: "product" })),
-          ...servicesRes.data.map((s: any) => ({ ...s, type: "service" })),
+          ...productsRes.data.map((p: any) => ({
+            _id: p._id,
+            title: p.title,
+            price: p.price,
+            location: p.location,
+            createdAt: p.createdAt,
+            type: "product",
+          })),
+          ...servicesRes.data.map((s: any) => ({
+            _id: s._id,
+            title: s.title,
+            price: s.price,
+            location: s.location,
+            createdAt: s.createdAt,
+            type: "service",
+          })),
         ].sort(
           (a, b) =>
             new Date(b.createdAt).getTime() -
@@ -94,54 +99,19 @@ const Dashboard = () => {
 
         setRecentListings(combined.slice(0, 6));
       } catch (err) {
-        console.error(err);
-      }
-
-      // Protected routes
-      try {
-        const [myProductsRes, myServicesRes] = await Promise.all([
-          api.get("/products/mine"),
-          api.get("/services/mine"),
-        ]);
-
-        setMyProducts(myProductsRes.data);
-        setMyServices(myServicesRes.data);
-      } catch {
-        // user not logged in or token expired
+        console.error("Dashboard fetch error:", err);
       }
     };
 
     fetchData();
   }, []);
 
-  // 🔹 FILTER PRODUCTS
-  const filteredProducts = products.filter((product) => {
-    const matchesSearch =
-      product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesCategory =
-      selectedCategory === "all" ||
-      product.category === selectedCategory;
-
-    const matchesPrice =
-      (!priceRange.min || product.price >= Number(priceRange.min)) &&
-      (!priceRange.max || product.price <= Number(priceRange.max));
-
-    return matchesSearch && matchesCategory && matchesPrice;
-  });
-
-  // 🔹 FILTER SERVICES
-  const filteredServices = services.filter(
-    (service) =>
-      service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // 🔹 ACTIONS
+  // ACTIONS
   const toggleWishlist = (id: string) => {
     setWishlist((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+      prev.includes(id)
+        ? prev.filter((i) => i !== id)
+        : [...prev, id]
     );
   };
 
@@ -154,10 +124,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader
-        mobileMenuOpen={mobileMenuOpen}
-        setMobileMenuOpen={setMobileMenuOpen}
-      />
+      <DashboardHeader />
 
       <div className="max-w-7xl mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -184,19 +151,23 @@ const Dashboard = () => {
               }}
             />
             <QuickActions />
-            <RecentListings recentListings={recentListings} />
+            <RecentListings listings={recentListings} />
           </TabsContent>
 
           {/* PRODUCTS */}
           <TabsContent value="products">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProducts.map((product) => (
+              {products.map((product) => (
                 <Link key={product._id} to={`/product/${product._id}`}>
                   <ProductCard
                     product={product}
                     isInWishlist={wishlist.includes(product._id)}
-                    onToggleWishlist={() => toggleWishlist(product._id)}
-                    onSendMessage={sendMessage}
+                    onToggleWishlist={() =>
+                      toggleWishlist(product._id)
+                    }
+                    onSendMessage={() =>
+                      sendMessage(product.postedBy?.fullName || "Seller")
+                    }
                   />
                 </Link>
               ))}
@@ -206,11 +177,13 @@ const Dashboard = () => {
           {/* SERVICES */}
           <TabsContent value="services">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredServices.map((service) => (
+              {services.map((service) => (
                 <Link key={service._id} to={`/service/${service._id}`}>
                   <ServiceCard
                     service={service}
-                    onSendMessage={sendMessage}
+                    onSendMessage={() =>
+                      sendMessage(service.postedBy?.fullName || "Provider")
+                    }
                   />
                 </Link>
               ))}
@@ -225,7 +198,7 @@ const Dashboard = () => {
                   <div>
                     <h4 className="font-semibold">{item.title}</h4>
                     <p className="text-muted-foreground">
-                      ₦{item.price}
+                      ₦{item.price.toLocaleString()}
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -261,7 +234,9 @@ const Dashboard = () => {
                     onToggleWishlist={() =>
                       toggleWishlist(product._id)
                     }
-                    onSendMessage={sendMessage}
+                    onSendMessage={() =>
+                      sendMessage(product.postedBy?.fullName || "Seller")
+                    }
                   />
                 ))}
             </div>
