@@ -26,7 +26,7 @@ import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsCards from "@/components/dashboard/StatsCards";
 import QuickActions from "@/components/dashboard/QuickActions";
 import RecentListings from "@/components/dashboard/RecentListings";
-import ProductCard from "@/components/ProductCard";
+import ProductCard from "@/components/dashboard/ProductCard";
 import ServiceCard from "@/components/dashboard/ServiceCard";
 import MessagesTab from "@/components/dashboard/MessagesTab";
 import ProfileTab from "@/components/dashboard/ProfileTab";
