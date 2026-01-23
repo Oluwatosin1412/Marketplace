@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import api from "@/lib/axios";
 
 import {
   Tabs,
@@ -11,36 +10,23 @@ import {
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 import {
-  LayoutDashboard,
-  List,
-  Package,
-  Wrench,
-  Heart,
-  MessageCircle,
-  Search,
   Edit,
   Trash,
-  UserCircle,
-  History,
 } from "lucide-react";
 
 import { useToast } from "@/hooks/use-toast";
+import { useMarketplace } from "@/context/MarketplaceContext";
 
 // Dashboard components
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsCards from "@/components/dashboard/StatsCards";
 import QuickActions from "@/components/dashboard/QuickActions";
 import RecentListings from "@/components/dashboard/RecentListings";
-import ProductCard from "@/components/dashboard/ProductCard";
+import ProductCard from "@/components/ProductCard";
 import ServiceCard from "@/components/dashboard/ServiceCard";
 import MessagesTab from "@/components/dashboard/MessagesTab";
 import ProfileTab from "@/components/dashboard/ProfileTab";
@@ -50,105 +36,42 @@ const Dashboard = () => {
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
 
+  const {
+    products,
+    services,
+    wishlist,
+    toggleWishlist,
+  } = useMarketplace();
+
   const [activeTab, setActiveTab] = useState("overview");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [priceRange, setPriceRange] = useState({ min: "", max: "" });
-  const [wishlist, setWishlist] = useState<string[]>([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // 🔹 DATA STATES
-  const [products, setProducts] = useState<any[]>([]);
-  const [services, setServices] = useState<any[]>([]);
-  const [myProducts, setMyProducts] = useState<any[]>([]);
-  const [myServices, setMyServices] = useState<any[]>([]);
-  const [recentListings, setRecentListings] = useState<any[]>([]);
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-  // 🔹 TAB FROM URL
+  // Sync tab from URL (?tab=products)
   useEffect(() => {
     const tab = searchParams.get("tab");
     if (tab) setActiveTab(tab);
   }, [searchParams]);
 
-  // 🔹 FETCH ALL DATA
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [productsRes, servicesRes] = await Promise.all([
-          api.get("/products"),
-          api.get("/services"),
-        ]);
+  // 🔹 Recent listings (latest 6)
+  const recentListings = [...products, ...services]
+    .sort(
+      (a: any, b: any) =>
+        new Date(b.createdAt).getTime() -
+        new Date(a.createdAt).getTime()
+    )
+    .slice(0, 6);
 
-        setProducts(productsRes.data);
-        setServices(servicesRes.data);
-
-        // recent = latest 6 combined
-        const combined = [
-          ...productsRes.data.map((p: any) => ({ ...p, type: "product" })),
-          ...servicesRes.data.map((s: any) => ({ ...s, type: "service" })),
-        ].sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() -
-            new Date(a.createdAt).getTime()
-        );
-
-        setRecentListings(combined.slice(0, 6));
-      } catch (err) {
-        console.error(err);
-      }
-
-      // Protected routes
-      try {
-        const [myProductsRes, myServicesRes] = await Promise.all([
-          api.get("/products/mine"),
-          api.get("/services/mine"),
-        ]);
-
-        setMyProducts(myProductsRes.data);
-        setMyServices(myServicesRes.data);
-      } catch {
-        // user not logged in or token expired
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  // 🔹 FILTER PRODUCTS
-  const filteredProducts = products.filter((product) => {
-    const matchesSearch =
-      product.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesCategory =
-      selectedCategory === "all" ||
-      product.category === selectedCategory;
-
-    const matchesPrice =
-      (!priceRange.min || product.price >= Number(priceRange.min)) &&
-      (!priceRange.max || product.price <= Number(priceRange.max));
-
-    return matchesSearch && matchesCategory && matchesPrice;
-  });
-
-  // 🔹 FILTER SERVICES
-  const filteredServices = services.filter(
-    (service) =>
-      service.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.category.toLowerCase().includes(searchTerm.toLowerCase())
+  // 🔹 My listings
+  const myListings = [...products, ...services].filter(
+    (item: any) => item.postedBy?._id === user?._id
   );
 
-  // 🔹 ACTIONS
-  const toggleWishlist = (id: string) => {
-    setWishlist((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
-  };
-
-  const sendMessage = (name: string) => {
+  const sendMessage = () => {
     toast({
-      title: "Message sent",
-      description: `Message sent to ${name}`,
+      title: "Coming soon",
+      description: "Messaging will be available soon",
     });
   };
 
@@ -176,13 +99,18 @@ const Dashboard = () => {
           <TabsContent value="overview">
             <StatsCards
               userStats={{
-                totalListings: myProducts.length + myServices.length,
-                activeProducts: myProducts.length,
-                activeServices: myServices.length,
+                totalListings: myListings.length,
+                activeProducts: products.filter(
+                  (p) => p.postedBy?._id === user?._id
+                ).length,
+                activeServices: services.filter(
+                  (s) => s.postedBy?._id === user?._id
+                ).length,
                 totalMessages: 0,
                 wishlistItems: wishlist.length,
               }}
             />
+
             <QuickActions />
             <RecentListings recentListings={recentListings} />
           </TabsContent>
@@ -190,24 +118,36 @@ const Dashboard = () => {
           {/* PRODUCTS */}
           <TabsContent value="products">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProducts.map((product) => (
-                <Link key={product._id} to={`/product/${product._id}`}>
+              {products.map((product) => (
+                <Link
+                  key={product._id}
+                  to={`/product/${product._id}`}
+                >
                   <ProductCard
                     product={product}
                     isInWishlist={wishlist.includes(product._id)}
-                    onToggleWishlist={() => toggleWishlist(product._id)}
+                    onToggleWishlist={toggleWishlist}
                     onSendMessage={sendMessage}
                   />
                 </Link>
               ))}
             </div>
+
+            {!products.length && (
+              <p className="text-center text-muted-foreground mt-10">
+                No products yet
+              </p>
+            )}
           </TabsContent>
 
           {/* SERVICES */}
           <TabsContent value="services">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredServices.map((service) => (
-                <Link key={service._id} to={`/service/${service._id}`}>
+              {services.map((service) => (
+                <Link
+                  key={service._id}
+                  to={`/service/${service._id}`}
+                >
                   <ServiceCard
                     service={service}
                     onSendMessage={sendMessage}
@@ -215,11 +155,23 @@ const Dashboard = () => {
                 </Link>
               ))}
             </div>
+
+            {!services.length && (
+              <p className="text-center text-muted-foreground mt-10">
+                No services yet
+              </p>
+            )}
           </TabsContent>
 
           {/* MY LISTINGS */}
           <TabsContent value="listings">
-            {[...myProducts, ...myServices].map((item) => (
+            {myListings.length === 0 && (
+              <p className="text-center text-muted-foreground mt-10">
+                You haven’t posted anything yet
+              </p>
+            )}
+
+            {myListings.map((item: any) => (
               <Card key={item._id} className="mb-4">
                 <CardContent className="flex justify-between items-center p-4">
                   <div>
@@ -228,6 +180,7 @@ const Dashboard = () => {
                       ₦{item.price}
                     </p>
                   </div>
+
                   <div className="flex gap-2">
                     <Button size="sm" variant="outline">
                       <Edit className="h-4 w-4" />
@@ -241,14 +194,17 @@ const Dashboard = () => {
             ))}
           </TabsContent>
 
+          {/* ORDERS */}
           <TabsContent value="orders">
             <OrderHistoryTab />
           </TabsContent>
 
+          {/* MESSAGES */}
           <TabsContent value="messages">
             <MessagesTab messages={[]} />
           </TabsContent>
 
+          {/* WISHLIST */}
           <TabsContent value="wishlist">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {products
@@ -258,15 +214,20 @@ const Dashboard = () => {
                     key={product._id}
                     product={product}
                     isInWishlist
-                    onToggleWishlist={() =>
-                      toggleWishlist(product._id)
-                    }
+                    onToggleWishlist={toggleWishlist}
                     onSendMessage={sendMessage}
                   />
                 ))}
             </div>
+
+            {!wishlist.length && (
+              <p className="text-center text-muted-foreground mt-10">
+                No items in wishlist
+              </p>
+            )}
           </TabsContent>
 
+          {/* PROFILE */}
           <TabsContent value="profile">
             <ProfileTab />
           </TabsContent>
