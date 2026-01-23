@@ -6,6 +6,37 @@ const ProductDetail = () => {
   const { id } = useParams();
   const [product, setProduct] = useState<any>(null);
 
+  // Mock product data
+  const product = {
+    id: Number(id),
+    title: "iPhone 14 Pro Max",
+    category: "Phones & Gadgets",
+    price: "₦450,000",
+    condition: "Used",
+    location: "EZIOBODO",
+    description: "iPhone 13 Pro Max in excellent condition. 256GB storage, battery health at 89%. Comes with original charger and box. No scratches or dents. Face ID works perfectly.",
+    seller: {
+      name: "John Doe",
+      avatar: "",
+      rating: 4.8,
+      totalSales: 23,
+      joinedDate: "Jan 2023"
+    },
+    views: 45,
+    datePosted: "2024-01-15",
+    rating: 4.8,
+    images: [
+      "/placeholder.svg",
+      "/placeholder.svg",
+      "/placeholder.svg",
+    ],
+    specifications: [
+      { label: "Storage", value: "256GB" },
+      { label: "Color", value: "Graphite" },
+      { label: "Battery Health", value: "89%" },
+      { label: "Warranty", value: "None" },
+    ],
+  };
   useEffect(() => {
     api.get(`/products/${id}`)
       .then(res => setProduct(res.data))
