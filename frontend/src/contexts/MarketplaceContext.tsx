@@ -108,7 +108,7 @@
 
 
 
-src/context/MarketplaceContext.tsx
+//src/contexts/MarketplaceContext.tsx
 import { createContext, useContext, useEffect, useState } from "react";
 import api from "@/lib/axios";
 
