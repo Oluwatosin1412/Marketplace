@@ -21,7 +21,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useMarketplace } from "@/context/MarketplaceContext";
 
-// Dashboard components
+// Components
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsCards from "@/components/dashboard/StatsCards";
 import QuickActions from "@/components/dashboard/QuickActions";
@@ -49,6 +49,16 @@ const Dashboard = () => {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   // Sync tab from URL (?tab=products)
+
+  // DATA
+  const [products, setProducts] = useState<any[]>([]);
+  const [services, setServices] = useState<any[]>([]);
+  const [myProducts, setMyProducts] = useState<any[]>([]);
+  const [myServices, setMyServices] = useState<any[]>([]);
+  const [recentListings, setRecentListings] = useState<any[]>([]);
+  const [wishlist, setWishlist] = useState<string[]>([]);
+
+  // TAB FROM URL
   useEffect(() => {
     const tab = searchParams.get("tab");
     if (tab) setActiveTab(tab);
@@ -69,6 +79,70 @@ const Dashboard = () => {
   );
 
   const sendMessage = () => {
+  // FETCH DATA
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [
+          productsRes,
+          servicesRes,
+          myProductsRes,
+          myServicesRes,
+        ] = await Promise.all([
+          api.get("/products"),
+          api.get("/services"),
+          api.get("/products/mine"),
+          api.get("/services/mine"),
+        ]);
+
+        setProducts(productsRes.data);
+        setServices(servicesRes.data);
+        setMyProducts(myProductsRes.data);
+        setMyServices(myServicesRes.data);
+
+        // RECENT LISTINGS (merge + sort)
+        const combined = [
+          ...productsRes.data.map((p: any) => ({
+            _id: p._id,
+            title: p.title,
+            price: p.price,
+            location: p.location,
+            createdAt: p.createdAt,
+            type: "product",
+          })),
+          ...servicesRes.data.map((s: any) => ({
+            _id: s._id,
+            title: s.title,
+            price: s.price,
+            location: s.location,
+            createdAt: s.createdAt,
+            type: "service",
+          })),
+        ].sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() -
+            new Date(a.createdAt).getTime()
+        );
+
+        setRecentListings(combined.slice(0, 6));
+      } catch (err) {
+        console.error("Dashboard fetch error:", err);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // ACTIONS
+  const toggleWishlist = (id: string) => {
+    setWishlist((prev) =>
+      prev.includes(id)
+        ? prev.filter((i) => i !== id)
+        : [...prev, id]
+    );
+  };
+
+  const sendMessage = (name: string) => {
     toast({
       title: "Coming soon",
       description: "Messaging will be available soon",
@@ -77,10 +151,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader
-        mobileMenuOpen={mobileMenuOpen}
-        setMobileMenuOpen={setMobileMenuOpen}
-      />
+      <DashboardHeader />
 
       <div className="max-w-7xl mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -112,7 +183,7 @@ const Dashboard = () => {
             />
 
             <QuickActions />
-            <RecentListings recentListings={recentListings} />
+            <RecentListings listings={recentListings} />
           </TabsContent>
 
           {/* PRODUCTS */}
@@ -128,6 +199,16 @@ const Dashboard = () => {
                     isInWishlist={wishlist.includes(product._id)}
                     onToggleWishlist={toggleWishlist}
                     onSendMessage={sendMessage}
+                <Link key={product._id} to={`/product/${product._id}`}>
+                  <ProductCard
+                    product={product}
+                    isInWishlist={wishlist.includes(product._id)}
+                    onToggleWishlist={() =>
+                      toggleWishlist(product._id)
+                    }
+                    onSendMessage={() =>
+                      sendMessage(product.postedBy?.fullName || "Seller")
+                    }
                   />
                 </Link>
               ))}
@@ -148,9 +229,12 @@ const Dashboard = () => {
                   key={service._id}
                   to={`/service/${service._id}`}
                 >
+                <Link key={service._id} to={`/service/${service._id}`}>
                   <ServiceCard
                     service={service}
-                    onSendMessage={sendMessage}
+                    onSendMessage={() =>
+                      sendMessage(service.postedBy?.fullName || "Provider")
+                    }
                   />
                 </Link>
               ))}
@@ -177,7 +261,7 @@ const Dashboard = () => {
                   <div>
                     <h4 className="font-semibold">{item.title}</h4>
                     <p className="text-muted-foreground">
-                      ₦{item.price}
+                      ₦{item.price.toLocaleString()}
                     </p>
                   </div>
 
@@ -216,6 +300,12 @@ const Dashboard = () => {
                     isInWishlist
                     onToggleWishlist={toggleWishlist}
                     onSendMessage={sendMessage}
+                    onToggleWishlist={() =>
+                      toggleWishlist(product._id)
+                    }
+                    onSendMessage={() =>
+                      sendMessage(product.postedBy?.fullName || "Seller")
+                    }
                   />
                 ))}
             </div>
