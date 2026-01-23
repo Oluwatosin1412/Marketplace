@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import api from "@/lib/axios";
-import { useMarketplace } from "@/context/MarketplaceContext";
+import { useMarketplace } from "@/contexts/MarketplaceContext";
 
 const CreateProduct = () => {
   const navigate = useNavigate();
