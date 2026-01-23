@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 
 import { useToast } from "@/hooks/use-toast";
-import { useMarketplace } from "@/context/MarketplaceContext";
+import { useMarketplace } from "@/contexts/MarketplaceContext";
 
 // Dashboard components
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
