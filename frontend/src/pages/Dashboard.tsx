@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import api from "@/lib/axios";
 
 import {
   Tabs,
@@ -20,13 +19,14 @@ import {
 } from "lucide-react";
 
 import { useToast } from "@/hooks/use-toast";
+import { useMarketplace } from "@/context/MarketplaceContext";
 
 // Components
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import StatsCards from "@/components/dashboard/StatsCards";
 import QuickActions from "@/components/dashboard/QuickActions";
 import RecentListings from "@/components/dashboard/RecentListings";
-import ProductCard from "@/components/dashboard/ProductCard";
+import ProductCard from "@/components/ProductCard";
 import ServiceCard from "@/components/dashboard/ServiceCard";
 import MessagesTab from "@/components/dashboard/MessagesTab";
 import ProfileTab from "@/components/dashboard/ProfileTab";
@@ -36,7 +36,19 @@ const Dashboard = () => {
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
 
+  const {
+    products,
+    services,
+    wishlist,
+    toggleWishlist,
+  } = useMarketplace();
+
   const [activeTab, setActiveTab] = useState("overview");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+  // Sync tab from URL (?tab=products)
 
   // DATA
   const [products, setProducts] = useState<any[]>([]);
@@ -52,6 +64,21 @@ const Dashboard = () => {
     if (tab) setActiveTab(tab);
   }, [searchParams]);
 
+  // 🔹 Recent listings (latest 6)
+  const recentListings = [...products, ...services]
+    .sort(
+      (a: any, b: any) =>
+        new Date(b.createdAt).getTime() -
+        new Date(a.createdAt).getTime()
+    )
+    .slice(0, 6);
+
+  // 🔹 My listings
+  const myListings = [...products, ...services].filter(
+    (item: any) => item.postedBy?._id === user?._id
+  );
+
+  const sendMessage = () => {
   // FETCH DATA
   useEffect(() => {
     const fetchData = async () => {
@@ -117,8 +144,8 @@ const Dashboard = () => {
 
   const sendMessage = (name: string) => {
     toast({
-      title: "Message sent",
-      description: `Message sent to ${name}`,
+      title: "Coming soon",
+      description: "Messaging will be available soon",
     });
   };
 
@@ -143,13 +170,18 @@ const Dashboard = () => {
           <TabsContent value="overview">
             <StatsCards
               userStats={{
-                totalListings: myProducts.length + myServices.length,
-                activeProducts: myProducts.length,
-                activeServices: myServices.length,
+                totalListings: myListings.length,
+                activeProducts: products.filter(
+                  (p) => p.postedBy?._id === user?._id
+                ).length,
+                activeServices: services.filter(
+                  (s) => s.postedBy?._id === user?._id
+                ).length,
                 totalMessages: 0,
                 wishlistItems: wishlist.length,
               }}
             />
+
             <QuickActions />
             <RecentListings listings={recentListings} />
           </TabsContent>
@@ -158,6 +190,15 @@ const Dashboard = () => {
           <TabsContent value="products">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.map((product) => (
+                <Link
+                  key={product._id}
+                  to={`/product/${product._id}`}
+                >
+                  <ProductCard
+                    product={product}
+                    isInWishlist={wishlist.includes(product._id)}
+                    onToggleWishlist={toggleWishlist}
+                    onSendMessage={sendMessage}
                 <Link key={product._id} to={`/product/${product._id}`}>
                   <ProductCard
                     product={product}
@@ -172,12 +213,22 @@ const Dashboard = () => {
                 </Link>
               ))}
             </div>
+
+            {!products.length && (
+              <p className="text-center text-muted-foreground mt-10">
+                No products yet
+              </p>
+            )}
           </TabsContent>
 
           {/* SERVICES */}
           <TabsContent value="services">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {services.map((service) => (
+                <Link
+                  key={service._id}
+                  to={`/service/${service._id}`}
+                >
                 <Link key={service._id} to={`/service/${service._id}`}>
                   <ServiceCard
                     service={service}
@@ -188,11 +239,23 @@ const Dashboard = () => {
                 </Link>
               ))}
             </div>
+
+            {!services.length && (
+              <p className="text-center text-muted-foreground mt-10">
+                No services yet
+              </p>
+            )}
           </TabsContent>
 
           {/* MY LISTINGS */}
           <TabsContent value="listings">
-            {[...myProducts, ...myServices].map((item) => (
+            {myListings.length === 0 && (
+              <p className="text-center text-muted-foreground mt-10">
+                You haven’t posted anything yet
+              </p>
+            )}
+
+            {myListings.map((item: any) => (
               <Card key={item._id} className="mb-4">
                 <CardContent className="flex justify-between items-center p-4">
                   <div>
@@ -201,6 +264,7 @@ const Dashboard = () => {
                       ₦{item.price.toLocaleString()}
                     </p>
                   </div>
+
                   <div className="flex gap-2">
                     <Button size="sm" variant="outline">
                       <Edit className="h-4 w-4" />
@@ -214,14 +278,17 @@ const Dashboard = () => {
             ))}
           </TabsContent>
 
+          {/* ORDERS */}
           <TabsContent value="orders">
             <OrderHistoryTab />
           </TabsContent>
 
+          {/* MESSAGES */}
           <TabsContent value="messages">
             <MessagesTab messages={[]} />
           </TabsContent>
 
+          {/* WISHLIST */}
           <TabsContent value="wishlist">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {products
@@ -231,6 +298,8 @@ const Dashboard = () => {
                     key={product._id}
                     product={product}
                     isInWishlist
+                    onToggleWishlist={toggleWishlist}
+                    onSendMessage={sendMessage}
                     onToggleWishlist={() =>
                       toggleWishlist(product._id)
                     }
@@ -240,8 +309,15 @@ const Dashboard = () => {
                   />
                 ))}
             </div>
+
+            {!wishlist.length && (
+              <p className="text-center text-muted-foreground mt-10">
+                No items in wishlist
+              </p>
+            )}
           </TabsContent>
 
+          {/* PROFILE */}
           <TabsContent value="profile">
             <ProfileTab />
           </TabsContent>
