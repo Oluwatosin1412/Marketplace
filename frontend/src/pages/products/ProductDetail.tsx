@@ -21,7 +21,7 @@ const ProductDetail = () => {
   // Mock product data
   const product = {
     id: Number(id),
-    title: "iPhone 13 Pro Max",
+    title: "iPhone 14 Pro Max",
     category: "Phones & Gadgets",
     price: "₦450,000",
     condition: "Used",
