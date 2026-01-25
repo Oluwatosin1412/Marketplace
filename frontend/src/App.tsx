@@ -11,7 +11,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import CreateProduct from "./pages/products/CreateProduct";
 import CreateService from "./pages/services/CreateService";
-//import ProductDetail from "./pages/products/ProductDetail";
+import ProductDetail from "./pages/products/ProductDetail";
 import ServiceDetail from "./pages/services/ServiceDetail";
 import Settings from "./pages/Settings";
 import SellerProfile from "./pages/SellerProfile";
@@ -44,7 +44,7 @@ const App = () => (
             <Route path="/services" element={<Services />} />
             <Route path="/services/edit/:id" element={<EditService />} />
             <Route path="/create/service" element={<CreateService />} />
-            {/* <Route path="/product/:id" element={<ProductDetail />} /> */}
+            <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/service/:id" element={<ServiceDetail />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/seller/:sellerId" element={<SellerProfile />} />

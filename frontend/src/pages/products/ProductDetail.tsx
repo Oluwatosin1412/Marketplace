@@ -1,64 +1,36 @@
-import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import api from "@/lib/axios";
+import { useMarketplace } from "@/contexts/MarketplaceContext";
 
 const ProductDetail = () => {
   const { id } = useParams();
-  const [product, setProduct] = useState<any>(null);
+  const { products, loading } = useMarketplace();
 
-  // Mock product data
-  const product = {
-    id: Number(id),
-    title: "iPhone 14 Pro Max",
-    category: "Phones & Gadgets",
-    price: "₦450,000",
-    condition: "Used",
-    location: "EZIOBODO",
-    description: "iPhone 13 Pro Max in excellent condition. 256GB storage, battery health at 89%. Comes with original charger and box. No scratches or dents. Face ID works perfectly.",
-    seller: {
-      name: "John Doe",
-      avatar: "",
-      rating: 4.8,
-      totalSales: 23,
-      joinedDate: "Jan 2023"
-    },
-    views: 45,
-    datePosted: "2024-01-15",
-    rating: 4.8,
-    images: [
-      "/placeholder.svg",
-      "/placeholder.svg",
-      "/placeholder.svg",
-    ],
-    specifications: [
-      { label: "Storage", value: "256GB" },
-      { label: "Color", value: "Graphite" },
-      { label: "Battery Health", value: "89%" },
-      { label: "Warranty", value: "None" },
-    ],
-  };
-  useEffect(() => {
-    api.get(`/products/${id}`)
-      .then(res => setProduct(res.data))
-      .catch(err => console.error(err));
-  }, [id]);
+  if (loading) return <p>Loading...</p>;
 
-  if (!product) return <p className="p-6">Loading...</p>;
+  const product = products.find((p) => p._id === id);
+
+  if (!product) {
+    return <p className="text-center mt-10">Product not found</p>;
+  }
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
-      <img
-        src={product.images?.length ? `${API_BASE_URL.replace("/api", "")}/uploads/${product.images[0]}` : "/placeholder.png"}
-        alt={product.title}
-      />
-      <h1 className="text-3xl font-bold mt-4">{product.title}</h1>
-      <p className="text-xl text-blue-600">₦{product.price}</p>
-      <p className="mt-2">{product.description}</p>
+    <div className="max-w-5xl mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold">{product.title}</h1>
+      <p className="text-muted-foreground mt-2">{product.description}</p>
+
+      <p className="mt-4 text-xl font-semibold text-blue-600">
+        ₦{product.price}
+      </p>
+
+      <p className="mt-2 text-sm text-gray-500">
+        Location: {product.location}
+      </p>
     </div>
   );
 };
 
 export default ProductDetail;
+
 
 
 
