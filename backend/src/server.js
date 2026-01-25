@@ -28,6 +28,9 @@ app.use(
     origin: [
       "https://marketplace-two-rosy.vercel.app",
       "https://marketplace-ojurh44cg-oluwatosin1412s-projects.vercel.app",
+      "https://marketplace-pavh5nr61-oluwatosin1412s-projects.vercel.app",
+      "https://marketplace-git-main-oluwatosin1412s-projects.vercel.app",
+      "http://localhost:8080/",
     ],
     credentials: true,
   })
