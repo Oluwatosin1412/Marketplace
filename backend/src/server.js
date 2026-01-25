@@ -25,7 +25,10 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: "https://marketplace-two-rosy.vercel.app",
+    origin: [
+      "https://marketplace-two-rosy.vercel.app",
+      "https://marketplace-ojurh44cg-oluwatosin1412s-projects.vercel.app",
+    ],
     credentials: true,
   })
 );
