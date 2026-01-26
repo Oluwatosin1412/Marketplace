@@ -7,16 +7,10 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-import {
-  Edit,
-  Trash,
-} from "lucide-react";
+import { Edit, Trash } from "lucide-react";
 
 import { useToast } from "@/hooks/use-toast";
 import { useMarketplace } from "@/contexts/MarketplaceContext";
@@ -37,9 +31,9 @@ const Dashboard = () => {
   const [searchParams] = useSearchParams();
 
   const {
-    products,
-    services,
-    wishlist,
+    products = [],
+    services = [],
+    wishlist = [],
     toggleWishlist,
   } = useMarketplace();
 
@@ -55,7 +49,7 @@ const Dashboard = () => {
   }, [searchParams]);
 
   // 🔹 Recent listings (latest 6)
-  const recentListings = [...products, ...services]
+  const recentListings = [...(products ?? []), ...(services ?? [])]
     .sort(
       (a: any, b: any) =>
         new Date(b.createdAt).getTime() -
@@ -64,7 +58,7 @@ const Dashboard = () => {
     .slice(0, 6);
 
   // 🔹 My listings
-  const myListings = [...products, ...services].filter(
+  const myListings = [...(products ?? []), ...(services ?? [])].filter(
     (item: any) => item.postedBy?._id === user?._id
   );
 
@@ -101,10 +95,10 @@ const Dashboard = () => {
               userStats={{
                 totalListings: myListings.length,
                 activeProducts: products.filter(
-                  (p) => p.postedBy?._id === user?._id
+                  (p: any) => p.postedBy?._id === user?._id
                 ).length,
                 activeServices: services.filter(
-                  (s) => s.postedBy?._id === user?._id
+                  (s: any) => s.postedBy?._id === user?._id
                 ).length,
                 totalMessages: 0,
                 wishlistItems: wishlist.length,
@@ -118,11 +112,8 @@ const Dashboard = () => {
           {/* PRODUCTS */}
           <TabsContent value="products">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.map((product) => (
-                <Link
-                  key={product._id}
-                  to={`/product/${product._id}`}
-                >
+              {products.map((product: any) => (
+                <Link key={product._id} to={`/product/${product._id}`}>
                   <ProductCard
                     product={product}
                     isInWishlist={wishlist.includes(product._id)}
@@ -133,7 +124,7 @@ const Dashboard = () => {
               ))}
             </div>
 
-            {!products.length && (
+            {products.length === 0 && (
               <p className="text-center text-muted-foreground mt-10">
                 No products yet
               </p>
@@ -143,11 +134,8 @@ const Dashboard = () => {
           {/* SERVICES */}
           <TabsContent value="services">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {services.map((service) => (
-                <Link
-                  key={service._id}
-                  to={`/service/${service._id}`}
-                >
+              {services.map((service: any) => (
+                <Link key={service._id} to={`/service/${service._id}`}>
                   <ServiceCard
                     service={service}
                     onSendMessage={sendMessage}
@@ -156,7 +144,7 @@ const Dashboard = () => {
               ))}
             </div>
 
-            {!services.length && (
+            {services.length === 0 && (
               <p className="text-center text-muted-foreground mt-10">
                 No services yet
               </p>
@@ -176,9 +164,7 @@ const Dashboard = () => {
                 <CardContent className="flex justify-between items-center p-4">
                   <div>
                     <h4 className="font-semibold">{item.title}</h4>
-                    <p className="text-muted-foreground">
-                      ₦{item.price}
-                    </p>
+                    <p className="text-muted-foreground">₦{item.price}</p>
                   </div>
 
                   <div className="flex gap-2">
@@ -208,8 +194,8 @@ const Dashboard = () => {
           <TabsContent value="wishlist">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {products
-                .filter((p) => wishlist.includes(p._id))
-                .map((product) => (
+                .filter((p: any) => wishlist.includes(p._id))
+                .map((product: any) => (
                   <ProductCard
                     key={product._id}
                     product={product}
@@ -220,7 +206,7 @@ const Dashboard = () => {
                 ))}
             </div>
 
-            {!wishlist.length && (
+            {wishlist.length === 0 && (
               <p className="text-center text-muted-foreground mt-10">
                 No items in wishlist
               </p>
