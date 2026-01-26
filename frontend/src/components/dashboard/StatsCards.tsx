@@ -6,7 +6,6 @@ interface UserStats {
   activeProducts: number;
   activeServices: number;
   totalMessages: number;
-  wishlistItems: number;
 }
 
 interface StatsCardsProps {
@@ -49,13 +48,13 @@ const StatsCards = ({ userStats }: StatsCardsProps) => {
       color: "text-orange-600",
       bg: "from-orange-50 to-orange-100",
     },
-    {
-      icon: Heart,
-      label: "Wishlist",
-      value: userStats.wishlistItems ?? 0,
-      color: "text-red-600",
-      bg: "from-red-50 to-red-100",
-    },
+    // {
+    //   icon: Heart,
+    //   label: "Wishlist",
+    //   value: userStats.wishlistItems ?? 0,
+    //   color: "text-red-600",
+    //   bg: "from-red-50 to-red-100",
+    // },
   ];
 
   return (

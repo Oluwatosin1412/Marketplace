@@ -152,9 +152,9 @@ export const MarketplaceProvider = ({ children }: { children: React.ReactNode })
   console.group("🟣 MarketplaceContext Debug");
   console.log("products:", products, Array.isArray(products));
   console.log("services:", services, Array.isArray(services));
-  console.log("wishlist:", wishlist, Array.isArray(wishlist));
+  // console.log("wishlist:", wishlist, Array.isArray(wishlist));
   console.groupEnd();
-}, [products, services, wishlist]);
+}, [products, services]);
 
 
   return (

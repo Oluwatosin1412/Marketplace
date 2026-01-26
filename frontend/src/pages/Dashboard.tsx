@@ -33,8 +33,6 @@ const Dashboard = () => {
   const {
     products = [],
     services = [],
-    wishlist = [],
-    toggleWishlist,
   } = useMarketplace();
 
   const [activeTab, setActiveTab] = useState("overview");
@@ -85,7 +83,6 @@ const Dashboard = () => {
             <TabsTrigger value="listings">My Listings</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="messages">Messages</TabsTrigger>
-            <TabsTrigger value="wishlist">Wishlist</TabsTrigger>
             <TabsTrigger value="profile">Profile</TabsTrigger>
           </TabsList>
 
@@ -101,7 +98,6 @@ const Dashboard = () => {
                   (s: any) => s.postedBy?._id === user?._id
                 ).length,
                 totalMessages: 0,
-                wishlistItems: wishlist.length,
               }}
             />
 
@@ -116,8 +112,6 @@ const Dashboard = () => {
                 <Link key={product._id} to={`/product/${product._id}`}>
                   <ProductCard
                     product={product}
-                    isInWishlist={wishlist.includes(product._id)}
-                    onToggleWishlist={toggleWishlist}
                     onSendMessage={sendMessage}
                   />
                 </Link>
@@ -190,7 +184,7 @@ const Dashboard = () => {
             <MessagesTab messages={[]} />
           </TabsContent>
 
-          {/* WISHLIST */}
+          {/* WISHLIST
           <TabsContent value="wishlist">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {products
@@ -211,7 +205,7 @@ const Dashboard = () => {
                 No items in wishlist
               </p>
             )}
-          </TabsContent>
+          </TabsContent> */}
 
           {/* PROFILE */}
           <TabsContent value="profile">

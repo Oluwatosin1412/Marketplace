@@ -19,15 +19,15 @@ export interface Product {
 
 interface ProductCardProps {
   product: Product;
-  isInWishlist?: boolean;
-  onToggleWishlist?: (id: string) => void;
+  // isInWishlist?: boolean;
+  // onToggleWishlist?: (id: string) => void;
   onSendMessage?: (sellerId: string) => void;
 }
 
 const ProductCard = ({
   product,
-  isInWishlist = false,
-  onToggleWishlist,
+  // isInWishlist = false,
+  // onToggleWishlist,
   onSendMessage,
 }: ProductCardProps) => {
   return (
@@ -46,7 +46,7 @@ const ProductCard = ({
           </div>
         )}
 
-        {onToggleWishlist && (
+        {/* {onToggleWishlist && (
           <button
             onClick={() => onToggleWishlist(product._id)}
             className="absolute top-3 right-3 bg-white p-2 rounded-full shadow"
@@ -57,7 +57,7 @@ const ProductCard = ({
               }`}
             />
           </button>
-        )}
+        )} */}
 
         <div className="absolute bottom-3 left-3">
           <Badge>{product.condition}</Badge>
