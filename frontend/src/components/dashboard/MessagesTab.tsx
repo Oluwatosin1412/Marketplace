@@ -17,8 +17,6 @@ interface MessagesTabProps {
   messages: Message[];
 }
 
-console.log("💬 MessagesTab messages:", messages);
-
 const MessagesTab = ({ messages }: MessagesTabProps) => {
   const navigate = useNavigate();
   
