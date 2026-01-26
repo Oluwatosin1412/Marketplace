@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { User, Users, Pin, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-console.log("💬 MessagesTab messages:", messages);
 
 interface Message {
   id: number;
@@ -17,6 +16,8 @@ interface Message {
 interface MessagesTabProps {
   messages: Message[];
 }
+
+console.log("💬 MessagesTab messages:", messages);
 
 const MessagesTab = ({ messages }: MessagesTabProps) => {
   const navigate = useNavigate();

@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-console.log("🕒 RecentListings:", recentListings);
 
 interface Listing {
   _id: string;
@@ -15,6 +14,8 @@ interface Listing {
 interface Props {
   listings: Listing[];
 }
+
+console.log("🕒 RecentListings:", recentListings);
 
 const RecentListings = ({ listings }: Props) => {
   if (!listings.length) {
