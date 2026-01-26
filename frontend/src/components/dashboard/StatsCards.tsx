@@ -2,6 +2,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Package, Wrench, MessageCircle, Heart } from "lucide-react";
 
+console.log("📊 StatsCards props:", userStats);
+
 interface UserStats {
   totalListings: number;
   activeProducts: number;

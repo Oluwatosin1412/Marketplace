@@ -148,6 +148,15 @@ export const MarketplaceProvider = ({ children }: { children: React.ReactNode })
     init();
   }, []);
 
+  useEffect(() => {
+  console.group("🟣 MarketplaceContext Debug");
+  console.log("products:", products, Array.isArray(products));
+  console.log("services:", services, Array.isArray(services));
+  console.log("wishlist:", wishlist, Array.isArray(wishlist));
+  console.groupEnd();
+}, [products, services, wishlist]);
+
+
   return (
     <MarketplaceContext.Provider
       value={{ products, services, loading, fetchProducts, fetchServices }}

@@ -1,6 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
+console.log("🕒 RecentListings:", recentListings);
+
 interface Listing {
   _id: string;
   title: string;
