@@ -4,18 +4,19 @@ import { Badge } from "@/components/ui/badge";
 interface Listing {
   _id: string;
   title: string;
-  price: number;
-  location: string;
+  price?: number;
+  location?: string;
   type: "product" | "service";
-  createdAt: string;
+  createdAt?: string;
 }
 
 interface Props {
-  listings: Listing[];
+  recentListings?: Listing[];
 }
 
-const RecentListings = ({ listings }: Props) => {
-  if (!listings.length) {
+const RecentListings = ({ recentListings }: Props) => {
+  // ✅ HARD GUARD (prevents ALL crashes)
+  if (!Array.isArray(recentListings) || recentListings.length === 0) {
     return (
       <Card className="rounded-2xl">
         <CardContent className="p-6 text-center text-gray-500">
@@ -32,7 +33,7 @@ const RecentListings = ({ listings }: Props) => {
       </CardHeader>
 
       <CardContent className="space-y-4">
-        {listings.map((item) => (
+        {recentListings.map((item) => (
           <div
             key={item._id}
             className="flex justify-between items-center border p-4 rounded-xl"
@@ -42,13 +43,17 @@ const RecentListings = ({ listings }: Props) => {
                 <h4 className="font-semibold">{item.title}</h4>
                 <Badge>{item.type}</Badge>
               </div>
+
               <p className="text-sm text-gray-500">
-                ₦{item.price.toLocaleString()} • {item.location}
+                ₦{(item.price ?? 0).toLocaleString()} •{" "}
+                {item.location ?? "Unknown"}
               </p>
             </div>
 
             <span className="text-xs text-gray-400">
-              {new Date(item.createdAt).toLocaleDateString()}
+              {item.createdAt
+                ? new Date(item.createdAt).toLocaleDateString()
+                : ""}
             </span>
           </div>
         ))}
