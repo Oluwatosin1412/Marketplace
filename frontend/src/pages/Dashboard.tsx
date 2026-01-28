@@ -66,9 +66,9 @@ const Dashboard = () => {
     .slice(0, 5);
 
   // 🔹 My listings
-  // const myListings = [...products, ...services].filter(
-  //   (item: any) => item.postedBy?._id === user?._id
-  // );
+  const myListings = [...products, ...services].filter(
+    (item: any) => item.postedBy?._id === user?._id
+  );
 
   const sendMessage = () => {
     toast({
