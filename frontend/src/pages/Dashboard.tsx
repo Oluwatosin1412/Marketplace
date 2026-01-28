@@ -131,7 +131,7 @@ const Dashboard = () => {
             />
 
             <QuickActions />
-            interface Props {listings: Listing[];}
+            interface Props {listings: Listing[]}
           </TabsContent>
 
           {/* ===== PRODUCTS ===== */}
