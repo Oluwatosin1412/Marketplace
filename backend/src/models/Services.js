@@ -8,7 +8,10 @@ const serviceSchema = new mongoose.Schema({
   category: String,
   location: String,
   customAddress: String,
-  images: [String],
-}, { timestamps: true });
-
+  images: [{ type: String }],
+      postedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+      sold: { type: Boolean, default: false },
+    },
+    { timestamps: true }
+  );
 export default mongoose.model("Service", serviceSchema);
