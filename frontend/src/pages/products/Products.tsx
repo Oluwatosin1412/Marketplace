@@ -5,8 +5,6 @@ const Products = () => {
   const {
     products,
     loading,
-    wishlist,
-    toggleWishlist,
   } = useMarketplace();
 
   if (loading) {

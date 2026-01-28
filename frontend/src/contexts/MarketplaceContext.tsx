@@ -3,24 +3,35 @@ import api from "@/lib/axios";
 
 interface Product {
   _id: string;
+  type: "product";
   title: string;
   price: number;
   category: string;
   condition: string;
   location: string;
   images: string[];
-  postedBy?: { _id: string; fullName: string };
+  postedBy?: {
+    _id: string;
+    fullName: string;
+  };
   createdAt: string;
 }
 
+
 interface Service {
   _id: string;
+  type: "service";
   title: string;
+  description: string;
   price: number;
+  priceUnit: "hour" | "job";
   category: string;
   location: string;
   images: string[];
-  postedBy?: { _id: string; fullName: string };
+  postedBy?: {
+    _id: string;
+    fullName: string;
+  };
   createdAt: string;
 }
 

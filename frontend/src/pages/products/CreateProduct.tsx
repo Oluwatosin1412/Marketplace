@@ -129,7 +129,7 @@ const CreateProduct = () => {
         description: "Your product is now live",
       });
 
-      navigate("/products");
+      navigate("/dashboard?tab=products");
     } catch (error: any) {
       toast({
         title: "Upload failed",

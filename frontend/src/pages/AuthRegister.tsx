@@ -63,7 +63,7 @@ const AuthRegister = () => {
         localStorage.setItem("token", response.token);
       }
 
-      navigate("/login");
+      navigate("/auth/login");
     } catch (error: any) {
       toast({
         title: "Registration failed",

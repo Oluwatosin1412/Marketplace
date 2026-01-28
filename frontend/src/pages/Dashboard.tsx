@@ -63,18 +63,34 @@ const Dashboard = () => {
         new Date(b.createdAt).getTime() -
         new Date(a.createdAt).getTime()
     )
-    .slice(0, 6);
+    .slice(0, 5);
 
   // 🔹 My listings
-  const myListings = [...products, ...services].filter(
-    (item: any) => item.postedBy?._id === user?._id
-  );
+  // const myListings = [...products, ...services].filter(
+  //   (item: any) => item.postedBy?._id === user?._id
+  // );
 
   const sendMessage = () => {
     toast({
       title: "Coming soon",
       description: "Messaging will be available soon",
     });
+  };
+
+  const userId = user?._id;
+
+  const myProducts = products.filter(
+    (p: any) => p?.postedBy?._id === userId
+  );
+
+  const myServices = services.filter(
+    (s: any) => s?.postedBy?._id === userId
+  );
+  const userStats = {
+    totalListings: myProducts.length + myServices.length,
+    activeProducts: myProducts.length,
+    activeServices: myServices.length,
+    totalMessages: 0,
   };
 
   return (
@@ -117,7 +133,7 @@ const Dashboard = () => {
 
           {/* ===== OVERVIEW ===== */}
           <TabsContent value="overview" className="space-y-6">
-            <StatsCards
+            {/* <StatsCards
               userStats={{
                 totalListings: myListings.length,
                 activeProducts: products.filter(
@@ -128,10 +144,15 @@ const Dashboard = () => {
                 ).length,
                 totalMessages: 0,
               }}
-            />
+            /> */}
+
+
+            <StatsCards userStats={userStats} />
+
+
 
             <QuickActions />
-            <RecentListings recentListings={recentListings} />
+            <RecentListings listings={recentListings} />
           </TabsContent>
 
           {/* ===== PRODUCTS ===== */}
@@ -209,7 +230,7 @@ const Dashboard = () => {
                           active
                         </span>
                         <span className="text-xs px-2 py-0.5 rounded-full bg-muted">
-                          {item.type}
+                          {products.find(p => p._id === item._id) ? "product" : "service"}
                         </span>
                       </div>
 
