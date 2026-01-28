@@ -7,13 +7,30 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { toast } from "sonner";
+import { useToast } from "@/components/ui/use-toast";
+import { Label } from "recharts/types/component/Label";
+import { Link } from "react-router-dom";
+import {
+  CardDescription,
+} from "@/components/ui/card";
+import {
+  ArrowLeft,
+  Upload,
+  X,
+  Plus,
+  ShoppingBag,
+  GraduationCap,
+} from "lucide-react";
 
 const CreateService = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { addService } = useMarketplace();
 
-  const [loading, setLoading] = useState(false);
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -22,120 +39,410 @@ const CreateService = () => {
     priceUnit: "job",
     category: "",
     location: "",
+    customAddress: "",
   });
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
+  const categories = [
+    "Saloon & Haircuts",
+    "Private Tutorials",
+    "Laundry Services",
+    "Repairs",
+    "Accomodation (Lodges or Hostels)",
+    "Printing/Typing/Photocopy",
+    "Photography",
+    "Freelancing",
+  ];
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  const locations = ["EZIOBODO", "UMUCHIMA", "HOSTEL", "OFF CAMPUS"];
 
-    try {
-      const res = await api.post("/services", {
-        ...formData,
-        price: Number(formData.price),
+
+   // ---------------- IMAGE UPLOAD ----------------
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+
+    if (files.length + selectedImages.length > 3) {
+      toast({
+        title: "Too many images",
+        description: "Maximum of 3 images allowed",
+        variant: "destructive",
       });
-
-      const createdService = {
-        ...res.data,
-        type: "service", // 🔑 CRITICAL
-      };
-
-      addService(createdService);
-
-      toast.success("Service created successfully 🎉");
-      navigate("/dashboard");
-    } catch (err: any) {
-      console.error("Create service failed", err);
-      toast.error(
-        err?.response?.data?.message || "Failed to create service"
-      );
-    } finally {
-      setLoading(false);
+      return;
     }
+
+    files.forEach((file) => {
+      setSelectedImages((prev) => [...prev, file]);
+
+      const reader = new FileReader();
+      reader.onloadend = () =>
+        setImagePreviews((prev) => [...prev, reader.result as string]);
+      reader.readAsDataURL(file);
+    });
   };
+
+  const removeImage = (index: number) => {
+    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // ---------------- SUBMIT ----------------
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setIsLoading(true);
+  
+      if (
+        !formData.title ||
+        !formData.description ||
+        !formData.price ||
+        !formData.priceUnit ||
+        !formData.category ||
+        !formData.location
+      ) {
+        toast({
+          title: "Missing fields",
+          description: "Please fill all required fields",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+  
+      try {
+        const data = new FormData();
+        Object.entries(formData).forEach(([key, value]) => {
+          if (value) data.append(key, value);
+        });
+  
+        selectedImages.forEach((file) => data.append("images", file));
+  
+        const res = await api.post("/services", data, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+  
+        // 🔥 INSTANT UI UPDATE
+        addService(res.data.service);
+  
+        toast({
+          title: "Service posted!",
+          description: "Your service is now live",
+        });
+  
+        navigate("/dashboard?tab=services");
+      } catch (error: any) {
+        toast({
+          title: "Upload failed",
+          description:
+            error.response?.data?.message || "Something went wrong",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+
+
+  // const handleChange = (
+  //   e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  // ) => {
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     [e.target.name]: e.target.value,
+  //   }));
+  // };
+
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+
+  //   try {
+  //     const res = await api.post("/services", {
+  //       ...formData,
+  //       price: Number(formData.price),
+  //     });
+
+  //     const createdService = {
+  //       ...res.data,
+  //       type: "service", // 🔑 CRITICAL
+  //     };
+
+  //     addService(createdService);
+
+  //     toast.success("Service created successfully 🎉");
+  //     navigate("/dashboard");
+  //   } catch (err: any) {
+  //     console.error("Create service failed", err);
+  //     toast.error(
+  //       err?.response?.data?.message || "Failed to create service"
+  //     );
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   return (
-    <Card className="max-w-2xl mx-auto rounded-2xl">
-      <CardHeader>
-        <CardTitle>Create a Service</CardTitle>
-      </CardHeader>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      {/* HEADER */}
+      <header className="border-b bg-white/80 backdrop-blur sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2 font-bold text-lg">
+            <ShoppingBag className="text-blue-600" />
+            <GraduationCap className="text-purple-600" />
+            FUTO Marketplace
+          </Link>
 
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            name="title"
-            placeholder="Service title"
-            value={formData.title}
-            onChange={handleChange}
-            required
-          />
+          <Button variant="outline" onClick={() => navigate("/dashboard")}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+        </div>
+      </header>
 
-          <Textarea
-            name="description"
-            placeholder="Describe your service"
-            value={formData.description}
-            onChange={handleChange}
-            required
-          />
+      {/* FORM */}
+      <div className="max-w-2xl mx-auto p-4 py-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Post a Service</CardTitle>
+            <CardDescription>
+              Fill in the details below to create a service
+            </CardDescription>
+          </CardHeader>
 
-          <div className="grid grid-cols-2 gap-3">
-            <Input
-              name="price"
-              type="number"
-              placeholder="Price"
-              value={formData.price}
-              onChange={handleChange}
-              required
-            />
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <Label>Title</Label>
+                <Input
+                  value={formData.title}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
+                />
+              </div>
 
+              <div>
+                <Label>Description</Label>
+                <Textarea
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <Input
+                  name="price"
+                  type="number"
+                  placeholder="Price"
+                  value={formData.price}
+                  onChange={(e) =>
+                      setFormData({ ...formData, price: e.target.value })
+                    }
+                  required
+                />
+
+                <Select
+                  value={formData.priceUnit}
+                  onValueChange={(value) =>
+                    setFormData((prev) => ({ ...prev, priceUnit: value }))
+                  }
+                >
+                <SelectTrigger>
+                  <SelectValue placeholder="Pricing unit" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="job">Per Job</SelectItem>
+                  <SelectItem value="hour">Per Hour</SelectItem>
+                </SelectContent>
+            </Select>
+          </div>
+  
+          <div>
+            <Label>Category</Label>
             <Select
-              value={formData.priceUnit}
-              onValueChange={(value) =>
-                setFormData((prev) => ({ ...prev, priceUnit: value }))
+              value={formData.category}
+              onValueChange={(v) =>
+                setFormData({ ...formData, category: v })
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder="Pricing unit" />
+                <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="job">Per Job</SelectItem>
-                <SelectItem value="hour">Per Hour</SelectItem>
+                {categories.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
 
-          <Input
-            name="category"
-            placeholder="Category (e.g. Plumbing, Design)"
-            value={formData.category}
-            onChange={handleChange}
-            required
-          />
+          <div>
+            <Label>Location</Label>
+            <Select
+              value={formData.location}
+              onValueChange={(v) =>
+                setFormData({
+                  ...formData,
+                  location: v,
+                  customAddress: "",
+                })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select location" />
+              </SelectTrigger>
+              <SelectContent>
+                {locations.map((l) => (
+                  <SelectItem key={l} value={l.toLowerCase()}>
+                    {l}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+  
+                {formData.location === "off campus" && (
+                  <div>
+                    <Label>Address</Label>
+                    <Input
+                      value={formData.customAddress}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          customAddress: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                )}
+  
+                {/* IMAGES */}
+                <div>
+                  <Label>Images (max 3)</Label>
+                  <div className="border-dashed border-2 rounded-lg p-4 text-center">
+                    <label className="cursor-pointer">
+                      <Upload className="mx-auto mb-2" />
+                      <input
+                        type="file"
+                        hidden
+                        multiple
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                      />
+                    </label>
+                  </div>
+  
+                  <div className="grid grid-cols-3 gap-2 mt-4">
+                    {imagePreviews.map((img, i) => (
+                      <div key={i} className="relative">
+                        <img
+                          src={img}
+                          className="h-24 w-full object-cover rounded"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(i)}
+                          className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+  
+                <Button className="w-full" disabled={isLoading}>
+                  {isLoading ? "Posting..." : "Post Service"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  };
 
-          <Input
-            name="location"
-            placeholder="Service location"
-            value={formData.location}
-            onChange={handleChange}
-            required
-          />
 
-          <Button type="submit" disabled={loading} className="w-full">
-            {loading ? "Creating..." : "Create Service"}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
-  );
-};
+
+
+
+
+//   return (
+//     <Card className="max-w-2xl mx-auto rounded-2xl">
+//       <CardHeader>
+//         <CardTitle>Create a Service</CardTitle>
+//       </CardHeader>
+
+//       <CardContent>
+//         <form onSubmit={handleSubmit} className="space-y-4">
+//           <Input
+//             name="title"
+//             placeholder="Service title"
+//             value={formData.title}
+//             onChange={handleChange}
+//             required
+//           />
+
+//           <Textarea
+//             name="description"
+//             placeholder="Describe your service"
+//             value={formData.description}
+//             onChange={handleChange}
+//             required
+//           />
+
+//           <div className="grid grid-cols-2 gap-3">
+//             <Input
+//               name="price"
+//               type="number"
+//               placeholder="Price"
+//               value={formData.price}
+//               onChange={handleChange}
+//               required
+//             />
+
+//             <Select
+//               value={formData.priceUnit}
+//               onValueChange={(value) =>
+//                 setFormData((prev) => ({ ...prev, priceUnit: value }))
+//               }
+//             >
+//               <SelectTrigger>
+//                 <SelectValue placeholder="Pricing unit" />
+//               </SelectTrigger>
+//               <SelectContent>
+//                 <SelectItem value="job">Per Job</SelectItem>
+//                 <SelectItem value="hour">Per Hour</SelectItem>
+//               </SelectContent>
+//             </Select>
+//           </div>
+
+//           <Input
+//             name="category"
+//             placeholder="Category (e.g. Plumbing, Design)"
+//             value={formData.category}
+//             onChange={handleChange}
+//             required
+//           />
+
+//           <Input
+//             name="location"
+//             placeholder="Service location"
+//             value={formData.location}
+//             onChange={handleChange}
+//             required
+//           />
+
+//           <Button type="submit" disabled={loading} className="w-full">
+//             {loading ? "Creating..." : "Create Service"}
+//           </Button>
+//         </form>
+//       </CardContent>
+//     </Card>
+//   );
+// };
 
 export default CreateService;
 
