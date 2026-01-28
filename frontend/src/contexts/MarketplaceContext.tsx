@@ -1,95 +1,95 @@
-// import { createContext, useContext, useEffect, useState } from "react";
-// import api from "@/lib/axios";
+import { createContext, useContext, useEffect, useState } from "react";
+import api from "@/lib/axios";
 
-// interface Product {
-//   _id: string;
-//   title: string;
-//   price: number;
-//   category: string;
-//   condition: string;
-//   location: string;
-//   images: string[];
-//   postedBy?: { _id: string; fullName: string };
-//   createdAt: string;
-// }
+interface Product {
+  _id: string;
+  title: string;
+  price: number;
+  category: string;
+  condition: string;
+  location: string;
+  images: string[];
+  postedBy?: { _id: string; fullName: string };
+  createdAt: string;
+}
 
-// interface Service {
-//   _id: string;
-//   title: string;
-//   price: number;
-//   category: string;
-//   location: string;
-//   images: string[];
-//   postedBy?: { _id: string; fullName: string };
-//   createdAt: string;
-// }
+interface Service {
+  _id: string;
+  title: string;
+  price: number;
+  category: string;
+  location: string;
+  images: string[];
+  postedBy?: { _id: string; fullName: string };
+  createdAt: string;
+}
 
-// interface MarketplaceContextType {
-//   products: Product[];
-//   services: Service[];
-//   loading: boolean;
-//   refreshAll: () => Promise<void>;
-//   addProduct: (product: Product) => void;
-//   addService: (service: Service) => void;
-// }
+interface MarketplaceContextType {
+  products: Product[];
+  services: Service[];
+  loading: boolean;
+  refreshAll: () => Promise<void>;
+  addProduct: (product: Product) => void;
+  addService: (service: Service) => void;
+}
 
-// const MarketplaceContext = createContext<MarketplaceContextType | null>(null);
+const MarketplaceContext = createContext<MarketplaceContextType | null>(null);
 
-// export const MarketplaceProvider = ({ children }: { children: React.ReactNode }) => {
-//   const [products, setProducts] = useState<Product[]>([]);
-//   const [services, setServices] = useState<Service[]>([]);
-//   const [loading, setLoading] = useState(true);
+export const MarketplaceProvider = ({ children }: { children: React.ReactNode }) => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
 
-//   const refreshAll = async () => {
-//     setLoading(true);
-//     try {
-//       const [productsRes, servicesRes] = await Promise.all([
-//         api.get("/products"),
-//         api.get("/services"),
-//       ]);
+  const refreshAll = async () => {
+    setLoading(true);
+    try {
+      const [productsRes, servicesRes] = await Promise.all([
+        api.get("/products"),
+        api.get("/services"),
+      ]);
 
-//       setProducts(productsRes.data);
-//       setServices(servicesRes.data);
-//     } catch (err) {
-//       console.error("Marketplace fetch failed", err);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
+      setProducts(productsRes.data);
+      setServices(servicesRes.data);
+    } catch (err) {
+      console.error("Marketplace fetch failed", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-//   useEffect(() => {
-//     refreshAll(); // 🔁 revalidate on refresh
-//   }, []);
+  useEffect(() => {
+    refreshAll(); // 🔁 revalidate on refresh
+  }, []);
 
-//   const addProduct = (product: Product) => {
-//     setProducts((prev) => [product, ...prev]);
-//   };
+  const addProduct = (product: Product) => {
+    setProducts((prev) => [product, ...prev]);
+  };
 
-//   const addService = (service: Service) => {
-//     setServices((prev) => [service, ...prev]);
-//   };
+  const addService = (service: Service) => {
+    setServices((prev) => [service, ...prev]);
+  };
 
-//   return (
-//     <MarketplaceContext.Provider
-//       value={{
-//         products,
-//         services,
-//         loading,
-//         refreshAll,
-//         addProduct,
-//         addService,
-//       }}
-//     >
-//       {children}
-//     </MarketplaceContext.Provider>
-//   );
-// };
+  return (
+    <MarketplaceContext.Provider
+      value={{
+        products,
+        services,
+        loading,
+        refreshAll,
+        addProduct,
+        addService,
+      }}
+    >
+      {children}
+    </MarketplaceContext.Provider>
+  );
+};
 
-// export const useMarketplace = () => {
-//   const ctx = useContext(MarketplaceContext);
-//   if (!ctx) throw new Error("useMarketplace must be used inside MarketplaceProvider");
-//   return ctx;
-// };
+export const useMarketplace = () => {
+  const ctx = useContext(MarketplaceContext);
+  if (!ctx) throw new Error("useMarketplace must be used inside MarketplaceProvider");
+  return ctx;
+};
 
 
 

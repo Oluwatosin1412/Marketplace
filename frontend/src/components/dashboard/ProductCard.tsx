@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Heart, User } from "lucide-react";
+import { User } from "lucide-react";
 
 export interface Product {
   _id: string;

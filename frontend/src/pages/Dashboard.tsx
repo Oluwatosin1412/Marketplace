@@ -131,7 +131,7 @@ const Dashboard = () => {
             />
 
             <QuickActions />
-            <RecentListings listings={recentListings} />
+            interface Props {listings: Listing[];}
           </TabsContent>
 
           {/* ===== PRODUCTS ===== */}
@@ -175,35 +175,65 @@ const Dashboard = () => {
           </TabsContent>
 
           {/* ===== MY LISTINGS ===== */}
-          <TabsContent value="listings">
-            {!myListings.length && (
+          <TabsContent value="listings" className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-semibold text-green-400">
+                My Listings
+              </h2>
+              <p className="text-muted-foreground">
+                Manage your products and services
+              </p>
+            </div>
+
+            {myListings.length === 0 && (
               <p className="text-center text-muted-foreground mt-10">
                 You haven’t posted anything yet
               </p>
             )}
 
+          <div className="space-y-4">
             {myListings.map((item: any) => (
-              <Card key={item._id} className="mb-4 rounded-xl">
-                <CardContent className="flex justify-between items-center p-4">
-                  <div>
-                    <h4 className="font-semibold">{item.title}</h4>
-                    <p className="text-muted-foreground">
-                      ₦{item.price}
-                    </p>
-                  </div>
+              <Card
+                key={item._id}
+                className="bg-muted/30 border rounded-2xl"
+              >
+                <CardContent className="flex gap-4 p-4">
+                  {/* Image */}
+                  <div className="w-20 h-20 bg-muted rounded-xl" />
 
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline">
-                      Edit
-                    </Button>
-                    <Button size="sm" variant="destructive">
-                      Delete
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  {/* Info */}
+                    <div className="flex-1">
+                      <div className="flex gap-2 items-center">
+                        <h4 className="font-semibold">{item.title}</h4>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-green-600/20 text-green-400">
+                          active
+                        </span>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-muted">
+                          {item.type}
+                        </span>
+                      </div>
+
+                      <p className="text-sm text-muted-foreground">
+                        ₦{item.price} • Posted on{" "}
+                        {new Date(item.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="outline">
+                        Edit
+                      </Button>
+                      <Button size="sm" variant="destructive">
+                        Delete
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </TabsContent>
+
 
           {/* ===== ORDERS ===== */}
           <TabsContent value="orders">
