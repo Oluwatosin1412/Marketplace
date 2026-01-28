@@ -109,65 +109,65 @@ export const useMarketplace = () => {
 
 
 //src/contexts/MarketplaceContext.tsx
-import { createContext, useContext, useEffect, useState } from "react";
-import api from "@/lib/axios";
+// import { createContext, useContext, useEffect, useState } from "react";
+// import api from "@/lib/axios";
 
-interface MarketplaceContextType {
-  products: any[];
-  services: any[];
-  loading: boolean;
-  fetchProducts: () => Promise<void>;
-  fetchServices: () => Promise<void>;
-}
+// interface MarketplaceContextType {
+//   products: any[];
+//   services: any[];
+//   loading: boolean;
+//   fetchProducts: () => Promise<void>;
+//   fetchServices: () => Promise<void>;
+// }
 
-const MarketplaceContext = createContext<MarketplaceContextType | null>(null);
+// const MarketplaceContext = createContext<MarketplaceContextType | null>(null);
 
-export const MarketplaceProvider = ({ children }: { children: React.ReactNode }) => {
-  const [products, setProducts] = useState<any[]>([]);
-  const [services, setServices] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+// export const MarketplaceProvider = ({ children }: { children: React.ReactNode }) => {
+//   const [products, setProducts] = useState<any[]>([]);
+//   const [services, setServices] = useState<any[]>([]);
+//   const [loading, setLoading] = useState(true);
 
-  const fetchProducts = async () => {
-    const res = await api.get("/products");
-    setProducts(res.data);
-  };
+//   const fetchProducts = async () => {
+//     const res = await api.get("/products");
+//     setProducts(res.data);
+//   };
 
-  const fetchServices = async () => {
-    const res = await api.get("/services");
-    setServices(res.data);
-  };
+//   const fetchServices = async () => {
+//     const res = await api.get("/services");
+//     setServices(res.data);
+//   };
 
-  useEffect(() => {
-    const init = async () => {
-      try {
-        await Promise.all([fetchProducts(), fetchServices()]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    init();
-  }, []);
+//   useEffect(() => {
+//     const init = async () => {
+//       try {
+//         await Promise.all([fetchProducts(), fetchServices()]);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+//     init();
+//   }, []);
 
-  useEffect(() => {
-  console.group("🟣 MarketplaceContext Debug");
-  console.log("products:", products, Array.isArray(products));
-  console.log("services:", services, Array.isArray(services));
-  // console.log("wishlist:", wishlist, Array.isArray(wishlist));
-  console.groupEnd();
-}, [products, services]);
+//   useEffect(() => {
+//   console.group("🟣 MarketplaceContext Debug");
+//   console.log("products:", products, Array.isArray(products));
+//   console.log("services:", services, Array.isArray(services));
+//   // console.log("wishlist:", wishlist, Array.isArray(wishlist));
+//   console.groupEnd();
+// }, [products, services]);
 
 
-  return (
-    <MarketplaceContext.Provider
-      value={{ products, services, loading, fetchProducts, fetchServices }}
-    >
-      {children}
-    </MarketplaceContext.Provider>
-  );
-};
+//   return (
+//     <MarketplaceContext.Provider
+//       value={{ products, services, loading, fetchProducts, fetchServices }}
+//     >
+//       {children}
+//     </MarketplaceContext.Provider>
+//   );
+// };
 
-export const useMarketplace = () => {
-  const ctx = useContext(MarketplaceContext);
-  if (!ctx) throw new Error("useMarketplace must be used inside MarketplaceProvider");
-  return ctx;
-};
+// export const useMarketplace = () => {
+//   const ctx = useContext(MarketplaceContext);
+//   if (!ctx) throw new Error("useMarketplace must be used inside MarketplaceProvider");
+//   return ctx;
+// };
