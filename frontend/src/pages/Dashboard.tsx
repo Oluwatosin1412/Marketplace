@@ -10,7 +10,15 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-import { Edit, Trash } from "lucide-react";
+import {
+  Home,
+  Package,
+  Wrench,
+  ClipboardList,
+  MessageCircle,
+  User,
+  ShoppingBag,
+} from "lucide-react";
 
 import { useToast } from "@/hooks/use-toast";
 import { useMarketplace } from "@/contexts/MarketplaceContext";
@@ -28,26 +36,28 @@ import OrderHistoryTab from "@/components/dashboard/OrderHistoryTab";
 
 const Dashboard = () => {
   const { toast } = useToast();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const {
-    products = [],
-    services = [],
-  } = useMarketplace();
-
-  const [activeTab, setActiveTab] = useState("overview");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { products = [], services = [] } = useMarketplace();
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-  // Sync tab from URL (?tab=products)
+  const [activeTab, setActiveTab] = useState("overview");
+
+  // ✅ READ TAB FROM URL ON LOAD / REFRESH
   useEffect(() => {
-    const tab = searchParams.get("tab");
-    if (tab) setActiveTab(tab);
+    const tabFromUrl = searchParams.get("tab");
+    if (tabFromUrl) setActiveTab(tabFromUrl);
   }, [searchParams]);
 
-  // 🔹 Recent listings (latest 6)
-  const recentListings = [...(products ?? []), ...(services ?? [])]
+  // ✅ WRITE TAB TO URL WHEN CHANGED
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setSearchParams({ tab });
+  };
+
+  // 🔹 Recent listings
+  const recentListings = [...products, ...services]
     .sort(
       (a: any, b: any) =>
         new Date(b.createdAt).getTime() -
@@ -56,7 +66,7 @@ const Dashboard = () => {
     .slice(0, 6);
 
   // 🔹 My listings
-  const myListings = [...(products ?? []), ...(services ?? [])].filter(
+  const myListings = [...products, ...services].filter(
     (item: any) => item.postedBy?._id === user?._id
   );
 
@@ -69,25 +79,44 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader
-        mobileMenuOpen={mobileMenuOpen}
-        setMobileMenuOpen={setMobileMenuOpen}
-      />
+      <DashboardHeader />
 
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-8 mb-6">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="products">Products</TabsTrigger>
-            <TabsTrigger value="services">Services</TabsTrigger>
-            <TabsTrigger value="listings">My Listings</TabsTrigger>
-            <TabsTrigger value="orders">Orders</TabsTrigger>
-            <TabsTrigger value="messages">Messages</TabsTrigger>
-            <TabsTrigger value="profile">Profile</TabsTrigger>
+      <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+        {/* ===== HEADER ===== */}
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <p className="text-muted-foreground">
+            Manage your listings and explore the marketplace
+          </p>
+        </div>
+
+        <Tabs value={activeTab} onValueChange={handleTabChange}>
+          {/* ===== TABS NAV (RESTORED UI) ===== */}
+          <TabsList className="w-full flex justify-between bg-muted/50 rounded-2xl p-2">
+            {[
+              { value: "overview", label: "Overview", icon: Home },
+              { value: "products", label: "Products", icon: Package },
+              { value: "services", label: "Services", icon: Wrench },
+              { value: "listings", label: "My Listings", icon: ClipboardList },
+              { value: "orders", label: "Orders", icon: ShoppingBag },
+              { value: "messages", label: "Messages", icon: MessageCircle },
+              { value: "profile", label: "Profile", icon: User },
+            ].map(({ value, label, icon: Icon }) => (
+              <TabsTrigger
+                key={value}
+                value={value}
+                className="flex items-center gap-2 rounded-xl px-3 py-2"
+              >
+                <Icon className="h-5 w-5 md:hidden" />
+                <span className="hidden md:inline text-sm font-medium">
+                  {label}
+                </span>
+              </TabsTrigger>
+            ))}
           </TabsList>
 
-          {/* OVERVIEW */}
-          <TabsContent value="overview">
+          {/* ===== OVERVIEW ===== */}
+          <TabsContent value="overview" className="space-y-6">
             <StatsCards
               userStats={{
                 totalListings: myListings.length,
@@ -102,10 +131,10 @@ const Dashboard = () => {
             />
 
             <QuickActions />
-            <RecentListings recentListings={recentListings} />
+            <RecentListings listings={recentListings} />
           </TabsContent>
 
-          {/* PRODUCTS */}
+          {/* ===== PRODUCTS ===== */}
           <TabsContent value="products">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.map((product: any) => (
@@ -118,14 +147,14 @@ const Dashboard = () => {
               ))}
             </div>
 
-            {products.length === 0 && (
+            {!products.length && (
               <p className="text-center text-muted-foreground mt-10">
                 No products yet
               </p>
             )}
           </TabsContent>
 
-          {/* SERVICES */}
+          {/* ===== SERVICES ===== */}
           <TabsContent value="services">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {services.map((service: any) => (
@@ -138,35 +167,37 @@ const Dashboard = () => {
               ))}
             </div>
 
-            {services.length === 0 && (
+            {!services.length && (
               <p className="text-center text-muted-foreground mt-10">
                 No services yet
               </p>
             )}
           </TabsContent>
 
-          {/* MY LISTINGS */}
+          {/* ===== MY LISTINGS ===== */}
           <TabsContent value="listings">
-            {myListings.length === 0 && (
+            {!myListings.length && (
               <p className="text-center text-muted-foreground mt-10">
                 You haven’t posted anything yet
               </p>
             )}
 
             {myListings.map((item: any) => (
-              <Card key={item._id} className="mb-4">
+              <Card key={item._id} className="mb-4 rounded-xl">
                 <CardContent className="flex justify-between items-center p-4">
                   <div>
                     <h4 className="font-semibold">{item.title}</h4>
-                    <p className="text-muted-foreground">₦{item.price}</p>
+                    <p className="text-muted-foreground">
+                      ₦{item.price}
+                    </p>
                   </div>
 
                   <div className="flex gap-2">
                     <Button size="sm" variant="outline">
-                      <Edit className="h-4 w-4" />
+                      Edit
                     </Button>
                     <Button size="sm" variant="destructive">
-                      <Trash className="h-4 w-4" />
+                      Delete
                     </Button>
                   </div>
                 </CardContent>
@@ -174,40 +205,17 @@ const Dashboard = () => {
             ))}
           </TabsContent>
 
-          {/* ORDERS */}
+          {/* ===== ORDERS ===== */}
           <TabsContent value="orders">
             <OrderHistoryTab />
           </TabsContent>
 
-          {/* MESSAGES */}
+          {/* ===== MESSAGES ===== */}
           <TabsContent value="messages">
             <MessagesTab messages={[]} />
           </TabsContent>
 
-          {/* WISHLIST
-          <TabsContent value="wishlist">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products
-                .filter((p: any) => wishlist.includes(p._id))
-                .map((product: any) => (
-                  <ProductCard
-                    key={product._id}
-                    product={product}
-                    isInWishlist
-                    onToggleWishlist={toggleWishlist}
-                    onSendMessage={sendMessage}
-                  />
-                ))}
-            </div>
-
-            {wishlist.length === 0 && (
-              <p className="text-center text-muted-foreground mt-10">
-                No items in wishlist
-              </p>
-            )}
-          </TabsContent> */}
-
-          {/* PROFILE */}
+          {/* ===== PROFILE ===== */}
           <TabsContent value="profile">
             <ProfileTab />
           </TabsContent>
