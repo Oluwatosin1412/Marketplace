@@ -131,7 +131,7 @@ const Dashboard = () => {
             />
 
             <QuickActions />
-            interface Props {listings: Listing[]}
+            <RecentListings recentListings={recentListings} />
           </TabsContent>
 
           {/* ===== PRODUCTS ===== */}
