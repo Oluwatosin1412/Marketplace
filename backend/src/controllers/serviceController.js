@@ -55,7 +55,7 @@ export const getAllServices = async (req, res) => {
   }
 };
 
-export const getMyService = async (req, res) => {
+export const getMyServices = async (req, res) => {
   try {
     const services = await Service.find({
       postedBy: req.user._id,
