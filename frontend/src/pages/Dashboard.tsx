@@ -167,7 +167,6 @@ const Dashboard = () => {
                 </Link>
               ))}
             </div>
-            console.log("📦 First product images:", products[0].images);
 
             {!products.length && (
               <p className="text-center text-muted-foreground mt-10">
@@ -269,7 +268,7 @@ const Dashboard = () => {
 
           {/* ===== PROFILE ===== */}
           <TabsContent value="profile">
-            <ProfileTab />
+            <ProfileTab user={user} />
           </TabsContent>
         </Tabs>
       </div>
