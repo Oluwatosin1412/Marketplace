@@ -30,6 +30,7 @@ const ProductCard = ({
   // onToggleWishlist,
   onSendMessage,
 }: ProductCardProps) => {
+  console.log("🖼 Product images:", product.images);
   return (
     <Card className="group hover:shadow-xl transition border-0 rounded-2xl overflow-hidden bg-white">
       {/* IMAGE */}
