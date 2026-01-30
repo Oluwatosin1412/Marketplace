@@ -152,7 +152,7 @@ const Dashboard = () => {
 
 
             <QuickActions />
-            <RecentListings listings={recentListings} />
+            <RecentListings recentListings={recentListings} />
           </TabsContent>
 
           {/* ===== PRODUCTS ===== */}
