@@ -23,11 +23,8 @@ export const createProduct = async (req, res) => {
       return res.status(400).json({ message: "All required fields must be provided" });
     }
 
-    const baseUrl = `${req.protocol}://${req.get("host")}`;
+    const images = (req.files || []).map((file) => file.path);
 
-    const images = (req.files || []).map(
-      (file) => `${baseUrl}/uploads/${file.filename}`
-    );
 
     const product = await Product.create({
       title,

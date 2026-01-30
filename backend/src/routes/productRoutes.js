@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.post(
   "/",
-  protect,
+  auth,
   upload.array("images", 5),
   createProduct
 );
