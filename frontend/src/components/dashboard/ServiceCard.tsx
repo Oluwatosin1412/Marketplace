@@ -25,13 +25,17 @@ const ServiceCard = ({ service, onSendMessage }: ServiceCardProps) => {
     <Card className="group hover:shadow-2xl transition-all duration-500 border-0 bg-white rounded-2xl overflow-hidden">
       <div className="relative">
         <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 relative">
-          {service.image && (
-            <img 
-              src={service.image} 
-              alt={service.title}
-              className="w-full h-full object-cover"
-            />
-          )}
+          {service.image?.[0] ? (
+          <img
+            src={service.image[0]}
+            alt={service.title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-400">
+            No image
+          </div>
+        )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
         </div>
       </div>
