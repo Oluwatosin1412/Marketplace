@@ -13,6 +13,8 @@ const ProductDetail = () => {
     return <p className="text-center mt-10">Product not found</p>;
   }
 
+  console.log("Product images in detail:", product.images);
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold">{product.title}</h1>
