@@ -249,7 +249,6 @@ const ServiceDetail = () => {
           </Card>
         </div>
 
-        {/* Related Services */}
         <div>
           <h2 className="text-2xl font-bold text-foreground mb-4">Related Services</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

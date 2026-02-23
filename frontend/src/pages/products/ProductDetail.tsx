@@ -1,11 +1,15 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useMarketplace } from "@/contexts/MarketplaceContext";
+import { useState } from "react";
 
 const ProductDetail = () => {
   const { id } = useParams();
-  const { products, loading } = useMarketplace();
+  const navigate = useNavigate();
+  const { products, loading, user } = useMarketplace();
 
-  if (loading) return <p>Loading...</p>;
+  const [currentImage, setCurrentImage] = useState(0);
+
+  if (loading) return <p className="text-center mt-10">Loading...</p>;
 
   const product = products.find((p) => p._id === id);
 
@@ -13,20 +17,115 @@ const ProductDetail = () => {
     return <p className="text-center mt-10">Product not found</p>;
   }
 
-  console.log("Product images in detail:", product.images);
+  const nextImage = () => {
+    setCurrentImage((prev) =>
+      prev === product.images.length - 1 ? 0 : prev + 1
+    );
+  };
+
+  const prevImage = () => {
+    setCurrentImage((prev) =>
+      prev === 0 ? product.images.length - 1 : prev - 1
+    );
+  };
+
+  const handleMessageSeller = () => {
+    navigate(`/messages/${product.postedBy._id}`);
+  };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold">{product.title}</h1>
-      <p className="text-muted-foreground mt-2">{product.description}</p>
+    <div className="max-w-6xl mx-auto px-4 py-10">
+      <div className="grid md:grid-cols-2 gap-10">
+        
+        {/* IMAGE CAROUSEL */}
+        <div className="relative">
+          {product.images?.length > 0 ? (
+            <>
+              <img
+                src={product.images[currentImage]}
+                alt={product.title}
+                className="w-full h-[400px] object-cover rounded-2xl shadow-lg"
+              />
 
-      <p className="mt-4 text-xl font-semibold text-blue-600">
-        ₦{product.price}
-      </p>
+              {product.images.length > 1 && (
+                <>
+                  <button
+                    onClick={prevImage}
+                    className="absolute top-1/2 left-3 -translate-y-1/2 bg-black/50 text-white px-3 py-2 rounded-full"
+                  >
+                    ‹
+                  </button>
 
-      <p className="mt-2 text-sm text-gray-500">
-        Location: {product.location}
-      </p>
+                  <button
+                    onClick={nextImage}
+                    className="absolute top-1/2 right-3 -translate-y-1/2 bg-black/50 text-white px-3 py-2 rounded-full"
+                  >
+                    ›
+                  </button>
+                </>
+              )}
+
+              {/* Thumbnails */}
+              <div className="flex gap-3 mt-4">
+                {product.images.map((img, index) => (
+                  <img
+                    key={index}
+                    src={img}
+                    onClick={() => setCurrentImage(index)}
+                    className={`w-20 h-20 object-cover rounded-lg cursor-pointer border-2 ${
+                      currentImage === index
+                        ? "border-blue-500"
+                        : "border-transparent"
+                    }`}
+                  />
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="w-full h-[400px] bg-gray-200 rounded-2xl flex items-center justify-center">
+              No Image Available
+            </div>
+          )}
+        </div>
+
+        {/* PRODUCT DETAILS */}
+        <div>
+          <h1 className="text-3xl font-bold">{product.title}</h1>
+
+          <p className="mt-3 text-gray-600">{product.description}</p>
+
+          <p className="mt-6 text-2xl font-semibold text-blue-600">
+            ₦{product.price}
+          </p>
+
+          <div className="mt-6 space-y-2 text-sm text-gray-500">
+            <p><strong>Category:</strong> {product.category}</p>
+            <p><strong>Condition:</strong> {product.condition}</p>
+            <p><strong>Location:</strong> {product.location}</p>
+            {product.customAddress && (
+              <p><strong>Address:</strong> {product.customAddress}</p>
+            )}
+          </div>
+
+          {/* SELLER SECTION */}
+          <div className="mt-8 p-5 border rounded-xl bg-gray-50">
+            <h3 className="font-semibold text-lg mb-2">Seller Information</h3>
+            <p>{product.postedBy?.fullName}</p>
+            <p className="text-sm text-gray-500">
+              {product.postedBy?.email}
+            </p>
+
+            {user?._id !== product.postedBy?._id && (
+              <button
+                onClick={handleMessageSeller}
+                className="mt-4 w-full bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 transition"
+              >
+                Message Seller
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
